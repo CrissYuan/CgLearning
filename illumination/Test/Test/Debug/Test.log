@@ -1,0 +1,18 @@
+﻿  Main.cpp
+  matrix.cpp
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(21): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(27): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(33): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(34): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(95): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(96): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(98): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(99): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(101): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(102): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(118): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(125): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(126): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\yewiiyan\desktop\texture - 光照\texture\test\test\matrix.cpp(127): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+  正在生成代码...
+  Test.vcxproj -> C:\Users\YewiiYan\Desktop\Texture - 光照\Texture\Test\Debug\Test.exe

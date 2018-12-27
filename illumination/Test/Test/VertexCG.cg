@@ -1,0 +1,4 @@
+void VertexMain(float4 iPosition:POSITION, out float4 oPosition:POSITION, uniform float4x4 changeCoordMatrix)
+{
+	oPosition = mul(changeCoordMatrix, iPosition);
+}
