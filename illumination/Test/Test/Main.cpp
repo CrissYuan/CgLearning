@@ -25,7 +25,7 @@ static const char* cgFFuncName = "TextureMain";
 static GLubyte myTexture[3 * 512 * 512];
 static const char* textureDir = ".//cat.bmp";
 static float curOffset = 0;
-static float stepOffset = 0.005;
+static float stepOffset = 0.0005;
 float projectionMatrix[16]; //Õ∂”∞æÿ’Û
 
 
