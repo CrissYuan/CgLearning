@@ -1,7 +1,7 @@
 void VertexMain(float4 iPosition:POSITION, 
 				out float4 oPosition:POSITION, 
 				float3 normal:NORMAL, //法向量
-				out oColor:COLOR, 
+				out float4 oColor:COLOR, 
 				uniform float4x4 changeCoordMatrix,
 				uniform float3 globalAmbient, //环境光颜色
 				uniform float3 lightColor, //灯光颜色
@@ -9,31 +9,34 @@ void VertexMain(float4 iPosition:POSITION,
 				uniform float3 eyePosition,  //眼睛的位置
 				uniform float3 Ke, //材质自身颜色
 				uniform float3 Ka, //环境光系数
-				uniform float3 Kd, //
-				uniform float3 Ks, //
+				uniform float3 Kd, //漫反射光系数
+				uniform float3 Ks, //镜面射光系数
 				uniform float shininess //材质光滑程度
 				)
 {
 	oPosition = mul(changeCoordMatrix, iPosition);
 	
 	// 物体自身颜色
-	float emissiveLight = Ke;
+	float3 emissiveLight = Ke;
 
 	// 环境光
-	float ambientLight = Ka * globalAmbient;
+	float3 ambientLight = Ka * globalAmbient;
 
 	// 漫反射光
 	float3 P = iPosition.xyz; //顶点位置
 	float3 N = normal; //顶点位置法向量
 	float3 L = normalize(lightPosition - P); //
-	float diffuseLight = Kd * lightColor * max(dot(N, L), 0);
+	float kDiffuse = max(dot(N, L), 0);
+	float3 diffuseLight = Kd * lightColor * kDiffuse;
 
 	// 镜面反射光
 	float3 V = normalize(eyePosition - P);
 	float3 H = normalize(L + V);
-	float specularLight = Ks * lightColor * pow(max(dot(N ,H), 0), shininess);
-	if(diffuseLight <= 0)
-		specularLight = 0;
+	float kSpecular = pow(max(dot(N ,H), 0), shininess);
+	if(kDiffuse <= 0)
+		kSpecular = 0;
+	float3 specularLight = Ks * lightColor * kSpecular;
+	
 	oColor.xyz = emissiveLight + ambientLight + diffuseLight + specularLight;
 	oColor.w = 1;
 }
