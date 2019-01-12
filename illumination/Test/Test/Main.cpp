@@ -118,6 +118,20 @@ void SetGoldMaterial()
 	cgSetParameter1f(shininess, mShininess);
 }
 
+void SetRubineMaterial()
+{
+	const float mKe[3] = { 0, 0, 0 };//自发光
+	const float mKa[3] = { 0.3, 0.2, 0.01 };//环境光系数
+	const float mKd[3] = { 0.78, 0.1, 0.1 };//漫反射光系数
+	const float mKs[3] = { 0.8, 0.5, 0.5 };//镜面射光系数
+	const float mShininess = 150;
+	cgSetParameter3fv(Ke, mKe);
+	cgSetParameter3fv(Ka, mKa);
+	cgSetParameter3fv(Kd, mKd);
+	cgSetParameter3fv(Ks, mKs);
+	cgSetParameter1f(shininess, mShininess);
+}
+
 void OnDraw()
 {
 	float translationMatrix[16], rotateMatrix[16], viewMatrix[16], finalMatrix[16], invMatrix[16];
@@ -153,21 +167,24 @@ void OnDraw()
 	cgSetParameter4fv(lightPosition, tempPosition);
 	transform(tempPosition, invMatrix, mEyePosition);
 	cgSetParameter4fv(eyePosition, tempPosition);
+
 	SetGoldMaterial();
 	glutSolidCone(1.5, 3.5, 20, 20);
 
-	//makeTranslateMatrix(2, 0, 0, translationMatrix);
-	//makeRotateMatrix(60, 1, 0, 0, rotateMatrix);
-	//multMatrix(finalMatrix, translationMatrix, rotateMatrix);
-	//multMatrix(finalMatrix, viewMatrix, finalMatrix);
-	//multMatrix(finalMatrix, projectionMatrix, finalMatrix);
 
-	//cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
+	makeTranslateMatrix(2, 0, 0, translationMatrix);
+	makeRotateMatrix(60, 1, 0, 0, rotateMatrix);
+	multMatrix(finalMatrix, translationMatrix, rotateMatrix);
+	multMatrix(finalMatrix, viewMatrix, finalMatrix);
+	multMatrix(finalMatrix, projectionMatrix, finalMatrix);
+
+	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
+
+	SetRubineMaterial();
+	glutSolidSphere(2.0, 80, 80);
 
 	cgUpdateProgramParameters(myCgVertexProgram);
 	cgUpdateProgramParameters(myCgFragmentProgram);
-
-	//glutSolidSphere(2.0, 30, 30);
 
 	cgGLDisableProfile(myCgVertexProfile);
 	CheckCgError("Disable Vertex Profile Error");
