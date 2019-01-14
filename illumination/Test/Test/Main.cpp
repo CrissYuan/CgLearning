@@ -183,10 +183,14 @@ void OnDraw()
 	makeTranslateMatrix(2, 0, 0, translationMatrix);
 	makeRotateMatrix(60, 1, 0, 0, rotateMatrix);
 	multMatrix(finalMatrix, translationMatrix, rotateMatrix);
+	invertMatrix(invMatrix, finalMatrix);
 	multMatrix(finalMatrix, viewMatrix, finalMatrix);
 	multMatrix(finalMatrix, projectionMatrix, finalMatrix);
-
 	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
+	transform(tempPosition, invMatrix, mLightPosition);
+	cgSetParameter4fv(lightPosition, tempPosition);
+	transform(tempPosition, invMatrix, mEyePosition);
+	cgSetParameter4fv(eyePosition, tempPosition);
 
 	SetRubineMaterial();
 	glutSolidSphere(2.0, 40, 40);
@@ -194,6 +198,7 @@ void OnDraw()
 
 	cgSetParameter3f(lightPosition, 0, 0, 0);
 	makeTranslateMatrix(mLightPosition[0], mLightPosition[1], mLightPosition[2], translationMatrix);
+	
 	multMatrix(finalMatrix, viewMatrix, translationMatrix);
 	multMatrix(finalMatrix, projectionMatrix, finalMatrix);
 	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
