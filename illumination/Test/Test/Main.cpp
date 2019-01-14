@@ -31,7 +31,7 @@ static const char* cgVFuncName = "VertexMain";
 static const char* cgFFileName = "FragmentCG.cg";
 static const char* cgFFuncName = "TextureMain";
 static float curOffset = 0;
-static float stepOffset = 0.0005;
+static float stepOffset = 0.003;
 static float mGlobalAmbient[3] = {0.1, 0.1, 0.05};
 static float mLightColor[3] = { 1, 1, 0.95 };
 
@@ -132,12 +132,22 @@ void SetRubineMaterial()
 	cgSetParameter1f(shininess, mShininess);
 }
 
+void SetLightMaterial()
+{
+	const float zero[3] = { 0.0,0.0,0.0 };
+	cgSetParameter3fv(Ke, mLightColor);
+	cgSetParameter3fv(Ka, zero);
+	cgSetParameter3fv(Kd, zero);
+	cgSetParameter3fv(Ks, zero);
+	cgSetParameter1f(shininess, 0.0);
+}
+
 void OnDraw()
 {
 	float translationMatrix[16], rotateMatrix[16], viewMatrix[16], finalMatrix[16], invMatrix[16];
 	float tempPosition[4];
-	float mLightPosition[4] = { 5, 3, 5 , 1 };
-	float mEyePosition[4] = { 0, 0, 13 , 1};
+	float mLightPosition[4] = { 5 * sin(curOffset), 1, 5 * cos(curOffset), 1 };
+	float mEyePosition[4] = { 0, 0, 20 , 1};
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	cgGLBindProgram(myCgVertexProgram);
@@ -151,12 +161,11 @@ void OnDraw()
 	CheckCgError("Enable Fragment Profile Error");
 
 	makeTranslateMatrix(-2, -1.5, 0, translationMatrix);
-	makeRotateMatrix(60 , 1, 0, 0, rotateMatrix);
-	//buildLookAtMatrix(sin(curOffset) * 13, 0, cos(curOffset) * 13, 0, 0, 0, 0, 1, 0, viewMatrix);
+	makeRotateMatrix(60, 1, 0, 0, rotateMatrix);
 	buildLookAtMatrix(mEyePosition[0], mEyePosition[1], mEyePosition[2], 0, 0, 0, 0, 1, 0, viewMatrix);
 	multMatrix(finalMatrix, translationMatrix, rotateMatrix);
-	multMatrix(finalMatrix, viewMatrix, finalMatrix);
 	invertMatrix(invMatrix, finalMatrix);
+	multMatrix(finalMatrix, viewMatrix, finalMatrix);
 	multMatrix(finalMatrix, projectionMatrix, finalMatrix);
 
 	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
@@ -171,7 +180,6 @@ void OnDraw()
 	SetGoldMaterial();
 	glutSolidCone(1.5, 3.5, 20, 20);
 
-
 	makeTranslateMatrix(2, 0, 0, translationMatrix);
 	makeRotateMatrix(60, 1, 0, 0, rotateMatrix);
 	multMatrix(finalMatrix, translationMatrix, rotateMatrix);
@@ -181,7 +189,17 @@ void OnDraw()
 	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
 
 	SetRubineMaterial();
-	glutSolidSphere(2.0, 80, 80);
+	glutSolidSphere(2.0, 40, 40);
+
+
+	cgSetParameter3f(lightPosition, 0, 0, 0);
+	makeTranslateMatrix(mLightPosition[0], mLightPosition[1], mLightPosition[2], translationMatrix);
+	multMatrix(finalMatrix, viewMatrix, translationMatrix);
+	multMatrix(finalMatrix, projectionMatrix, finalMatrix);
+	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
+
+	SetLightMaterial();
+	glutSolidSphere(0.2, 12, 12);
 
 	cgUpdateProgramParameters(myCgVertexProgram);
 	cgUpdateProgramParameters(myCgFragmentProgram);
@@ -199,16 +217,12 @@ void ReShape(int width, int height)
 {
 	double aspectRatio = (float)width / (float)height;
 	double fieldView = 30;
-	buildPerspectiveMatrix(fieldView, aspectRatio, 1.0, 20.0, projectionMatrix);
+	buildPerspectiveMatrix(fieldView, aspectRatio, 1.0, 50.0, projectionMatrix);
 	glViewport(0, 0, width, height);
 }
 
 void PicMoving()
 {
-	//if (curOffset > 0.3 || curOffset < -0.3)
-	//{
-	//	stepOffset *= -1;
-	//}
 	curOffset += stepOffset;
 	if (curOffset >= 2 * myPi)
 	{

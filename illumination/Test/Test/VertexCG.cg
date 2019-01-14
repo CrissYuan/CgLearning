@@ -37,6 +37,8 @@ void VertexMain(float4 iPosition:POSITION,
 		kSpecular = 0;
 	float3 specularLight = Ks * lightColor * kSpecular;
 	
-	oColor.xyz = emissiveLight + ambientLight + diffuseLight + specularLight;
+	float3 maxLight = {1,1,1};
+	oColor.xyz = min(emissiveLight + ambientLight + diffuseLight + specularLight, maxLight);
+	oColor.x = min(oColor.x, 1);
 	oColor.w = 1;
 }
