@@ -31,7 +31,7 @@ static const char* cgVFuncName = "VertexMain";
 static const char* cgFFileName = "FragmentCG.cg";
 static const char* cgFFuncName = "TextureMain";
 static float curOffset = 0;
-static float stepOffset = 0.003;
+static float stepOffset = 0.001;
 static float mGlobalAmbient[3] = {0.1, 0.1, 0.05};
 static float mLightColor[3] = { 1, 1, 0.95 };
 
@@ -76,15 +76,6 @@ int main(int argc, char *argv[])
 	CheckCgError("Get Named "#name" Parameter Error");
 
 	GET_VERTEX_PROGRAM(changeCoordMatrix);
-	GET_VERTEX_PROGRAM(globalAmbient);
-	GET_VERTEX_PROGRAM(lightColor);
-	GET_VERTEX_PROGRAM(lightPosition);
-	GET_VERTEX_PROGRAM(eyePosition);
-	GET_VERTEX_PROGRAM(Ke);
-	GET_VERTEX_PROGRAM(Ka);
-	GET_VERTEX_PROGRAM(Kd);
-	GET_VERTEX_PROGRAM(Ks);
-	GET_VERTEX_PROGRAM(shininess);
 
 	myCgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
 	cgGLSetOptimalOptions(myCgFragmentProfile);
@@ -99,6 +90,19 @@ int main(int argc, char *argv[])
 	CheckCgError("Create Program Error");
 	cgGLLoadProgram(myCgFragmentProgram);
 	CheckCgError("Load Program Error");
+	#define GET_FRAGMENT_PROGRAM(name) \
+	name = \
+	cgGetNamedParameter(myCgFragmentProgram, #name);\
+	CheckCgError("Get Named "#name" Parameter Error");
+	GET_FRAGMENT_PROGRAM(globalAmbient);
+	GET_FRAGMENT_PROGRAM(lightColor);
+	GET_FRAGMENT_PROGRAM(lightPosition);
+	GET_FRAGMENT_PROGRAM(eyePosition);
+	GET_FRAGMENT_PROGRAM(Ke);
+	GET_FRAGMENT_PROGRAM(Ka);
+	GET_FRAGMENT_PROGRAM(Kd);
+	GET_FRAGMENT_PROGRAM(Ks);
+	GET_FRAGMENT_PROGRAM(shininess);
 	CheckCgError("Get Named Parameter Error");
 	glutMainLoop();
 	return 0;
