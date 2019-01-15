@@ -1,39 +1,67 @@
+struct Light
+{
+	float3 lightPosition;
+	float3 lightColor;
+};
+
+struct Material
+{
+	float3 Ke; //材质自身颜色
+	float3 Ka; //环境光系数
+	float3 Kd; //漫反射光系数
+	float3 Ks; //镜面射光系数
+	float shininess; //材质光滑程度
+};
+
+void PongLighting(float3 ojbPos, 
+					float3 ojbNormal, 
+					Light light, 
+					float3 eyePosition, 
+					Material material, 
+					out float3 diffuseLight, 
+					out float3 specularLight
+					)
+{
+	// 漫反射光
+	float3 P = ojbPos.xyz; //顶点位置
+	float3 N = normalize(ojbNormal); //顶点位置法向量
+	float3 L = normalize(light.lightPosition - P);
+	float kDiffuse = max(dot(N, L), 0);
+	diffuseLight = material.Kd * light.lightColor * kDiffuse;
+
+	// 镜面反射光
+	float3 V = normalize(eyePosition - P);
+	float3 H = normalize(L + V);
+	float kSpecular = pow(max(dot(N ,H), 0), material.shininess);
+	if(kDiffuse <= 0)
+		kSpecular = 0;
+	specularLight = material.Ks * light.lightColor * kSpecular;
+}
+
 void TextureMain(out float4 oColor:COLOR,
 				uniform float3 globalAmbient, //环境光颜色
-				uniform float3 lightColor, //灯光颜色
-				uniform float3 lightPosition, //灯的位置
+				uniform Light lights[2],
 				uniform float3 eyePosition,  //眼睛的位置
-				uniform float3 Ke, //材质自身颜色
-				uniform float3 Ka, //环境光系数
-				uniform float3 Kd, //漫反射光系数
-				uniform float3 Ks, //镜面射光系数
-				uniform float shininess, //材质光滑程度
+				uniform Material material,
 				float3 ojbPos:TEXCOORD0,
 				float3 ojbNormal:TEXCOORD1
 				)
 {
 	// 自发光
-	float3 emissiveLight = Ke;
+	float3 emissiveLight = material.Ke;
 	// 环境光
-	float3 ambientLight = Ka * globalAmbient;
-
-	// 漫反射光
-	float3 P = ojbPos.xyz; //顶点位置
-	float3 N = normalize(ojbNormal); //顶点位置法向量
-	float3 L = normalize(lightPosition - P);
-	float kDiffuse = max(dot(N, L), 0);
-	float3 diffuseLight = Kd * lightColor * kDiffuse;
-
-	// 镜面反射光
-	float3 V = normalize(eyePosition - P);
-	float3 H = normalize(L + V);
-	float kSpecular = pow(max(dot(N ,H), 0), shininess);
-	if(kDiffuse <= 0)
-		kSpecular = 0;
-	float3 specularLight = Ks * lightColor * kSpecular;
-	
+	float3 ambientLight = material.Ka * globalAmbient;
+	float3 diffuseLight;
+	float3 specularLight;
+	oColor.xyz = 0;
+	for(int i=0; i<2; i++)
+	{
+		PongLighting(ojbPos, ojbNormal, lights[i], eyePosition, material, diffuseLight, specularLight);
+		oColor.xyz += diffuseLight + specularLight;
+	}
+	oColor.xyz += emissiveLight + ambientLight;
 	float3 maxLight = {1,1,1};
-	oColor.xyz = min(emissiveLight + ambientLight + diffuseLight + specularLight, maxLight);
+	oColor.xyz = min(oColor.xyz, maxLight);
 	oColor.x = min(oColor.x, 1);
 	oColor.w = 1;
 }
