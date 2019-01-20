@@ -19,6 +19,9 @@ static CGparameter changeCoordMatrix;
 static CGparameter globalAmbient; //环境光颜色
 static CGparameter lightColor[2]; //灯光颜色
 static CGparameter lightPosition[2]; //灯的位置
+static CGparameter Kc[2]; //灯的位置
+static CGparameter Kl[2]; //灯的位置
+static CGparameter Kq[2]; //灯的位置
 static CGparameter eyePosition;  //眼睛的位置
 static CGparameter Ke; //材质自身颜色
 static CGparameter Ka; //环境光系数
@@ -33,7 +36,7 @@ static const char* cgFFuncName = "TextureMain";
 static float curOffset = 0;
 static float stepOffset = 0.001;
 static float mGlobalAmbient[3] = { 0.1, 0.1, 0.05 };
-static float mLightColor[2][3] = { { 1, 1, 0 }, { 1, 0, 0 } };
+static float mLightColor[2][3] = { { 1, 1, 0.6 }, { 1, 0, 0.1 } };
 
 float projectionMatrix[16]; //投影矩阵
 
@@ -106,6 +109,12 @@ int main(int argc, char *argv[])
 	GET_FRAGMENT_PROGRAM_2(lightColor[1], lights[1].lightColor); 
 	GET_FRAGMENT_PROGRAM_2(lightPosition[0], lights[0].lightPosition);
 	GET_FRAGMENT_PROGRAM_2(lightPosition[1], lights[1].lightPosition);
+	GET_FRAGMENT_PROGRAM_2(Kc[0], lights[0].Kc);
+	GET_FRAGMENT_PROGRAM_2(Kc[1], lights[1].Kc);
+	GET_FRAGMENT_PROGRAM_2(Kl[0], lights[0].Kl);
+	GET_FRAGMENT_PROGRAM_2(Kl[1], lights[1].Kl);
+	GET_FRAGMENT_PROGRAM_2(Kq[0], lights[0].Kq);
+	GET_FRAGMENT_PROGRAM_2(Kq[1], lights[1].Kq);
 	GET_FRAGMENT_PROGRAM_2(Ke, material.Ke);
 	GET_FRAGMENT_PROGRAM_2(Ka, material.Ka);
 	GET_FRAGMENT_PROGRAM_2(Kd, material.Kd);
@@ -165,11 +174,28 @@ void SetLightMaterial2()
 	cgSetParameter1f(shininess, 0.0);
 }
 
+void SetWallMaterial()
+{
+	const float mKe[3] = { 0, 0, 0 };//自发光
+	const float mKa[3] = { 0.1, 0.2, 0.3 };//环境光系数
+	const float mKd[3] = { 0.2, 0.5, 0.8 };//漫反射光系数
+	const float mKs[3] = { 0.1, 0.3, 0.9 };//镜面射光系数
+	const float mShininess = 10;
+	cgSetParameter3fv(Ke, mKe);
+	cgSetParameter3fv(Ka, mKa);
+	cgSetParameter3fv(Kd, mKd);
+	cgSetParameter3fv(Ks, mKs);
+	cgSetParameter1f(shininess, mShininess);
+}
+
 void OnDraw()
 {
 	float translationMatrix[16], rotateMatrix[16], viewMatrix[16], finalMatrix[16], invMatrix[16];
 	float tempPosition[4];
 	float mLightPosition[2][4] = { {5 * sin(curOffset), 1, 5 * cos(curOffset), 1}, {5 * sin(-curOffset), 2, 5 * cos(-curOffset), 1} };
+	float mKc[2] = {0.3, 0.6};
+	float mKl[2] = {0.1, 0.2};
+	float mKq[2] = {0.03, 0.06};
 	float mEyePosition[4] = { 0, 0, 20 , 1};
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -195,6 +221,13 @@ void OnDraw()
 	cgSetParameter4fv(globalAmbient, mGlobalAmbient);
 	cgSetParameter3fv(lightColor[0], mLightColor[0]);
 	cgSetParameter3fv(lightColor[1], mLightColor[1]);
+
+	cgSetParameter1f(Kc[0], mKc[0]);
+	cgSetParameter1f(Kc[1], mKc[0]);
+	cgSetParameter1f(Kl[0], mKl[0]);
+	cgSetParameter1f(Kl[1], mKl[0]);
+	cgSetParameter1f(Kq[0], mKq[0]);
+	cgSetParameter1f(Kq[1], mKq[0]);
 	
 	transform(tempPosition, invMatrix, mLightPosition[0]);
 	cgSetParameter4fv(lightPosition[0], tempPosition);
@@ -243,6 +276,44 @@ void OnDraw()
 
 	SetLightMaterial2();
 	glutSolidSphere(0.2, 12, 12);
+
+
+	multMatrix(finalMatrix, projectionMatrix, viewMatrix);
+	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
+	cgSetParameter3fv(lightPosition[0], mLightPosition[0]);
+	cgSetParameter3fv(lightPosition[1], mLightPosition[1]);
+	SetWallMaterial();
+	glBegin(GL_QUADS);
+		glNormal3f(0, 1, 0);
+		glVertex3f( 12, -3, -12);
+		glVertex3f(-12, -3, -12);
+		glVertex3f(-12, -3, 12);
+		glVertex3f( 12, -3, 12);
+
+		glNormal3f(0, 0, 1);
+		glVertex3f( 12, -12, -8);
+		glVertex3f(-12, -12, -8);
+		glVertex3f(-12,  12, -8);
+		glVertex3f( 12,  12, -8);
+
+		glNormal3f(0, -1, 0);
+		glVertex3f( 12, 5, -12);
+		glVertex3f(-12, 5, -12);
+		glVertex3f(-12, 5, 12);
+		glVertex3f( 12, 5, 12);
+
+		glNormal3f(1, 0, 0);
+		glVertex3f(-6,  12, -12);
+		glVertex3f(-6, -12, -12);
+		glVertex3f(-6, -12, 12);
+		glVertex3f(-6,  12, 12);
+
+		glNormal3f(-1, 0, 0);
+		glVertex3f(6, 12, -12);
+		glVertex3f(6, -12, -12);
+		glVertex3f(6, -12, 12);
+		glVertex3f(6, 12, 12);
+	glEnd();
 
 	cgUpdateProgramParameters(myCgVertexProgram);
 	cgUpdateProgramParameters(myCgFragmentProgram);
