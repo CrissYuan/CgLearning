@@ -318,6 +318,37 @@ void transform(float dst[4],
 	invW = 1 / tmp[3];
 	/* Apply perspective divide and copy to dst (so dst can vec). */
 	for (i = 0; i < 3; i++)
-		dst[i] = tmp[i] * tmp[3];
+		dst[i] = tmp[i] * invW;
 	dst[3] = 1;
+}
+
+/* Simple 4x4 matrix by 4-component column vector multiply. */
+void transformDirection(float dst[3],
+	const float mat[16], const float vec[3])
+{
+	double tmp[3];
+	int i;
+
+	for (i = 0; i < 3; i++) {
+		tmp[i] = mat[i * 4 + 0] * vec[0] +
+			mat[i * 4 + 1] * vec[1] +
+			mat[i * 4 + 2] * vec[2];
+	}
+	/* Apply perspective divide and copy to dst (so dst can vec). */
+	for (i = 0; i < 3; i++)
+		dst[i] = tmp[i];
+}
+
+void normalizeVector(float v[3])
+{
+	float mag;
+	mag = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+	float oneOverMag = 1;
+	if (mag)
+	{
+		oneOverMag = 1.0 / mag;
+	}
+	v[0] *= oneOverMag;
+	v[1] *= oneOverMag;
+	v[2] *= oneOverMag;
 }

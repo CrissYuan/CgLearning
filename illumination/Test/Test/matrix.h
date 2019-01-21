@@ -20,3 +20,7 @@ void multMatrix(float dst[16],
 void invertMatrix(float *out, const float *m);
 
 void transform(float dst[4], const float mat[16], const float vec[4]);
+
+void transformDirection(float dst[3], const float mat[16], const float vec[3]);
+
+void normalizeVector(float v[3]);

@@ -3,6 +3,9 @@ struct Light
 	float3 lightPosition;
 	float3 lightColor;
 	float Kc,Kl,Kq;
+	float3 direction;
+	float cosInnerCone;
+	float cosOuterCone;
 };
 
 struct Material
@@ -13,6 +16,13 @@ struct Material
 	float3 Ks; //镜面射光系数
 	float shininess; //材质光滑程度
 };
+
+float SpotLighting(float3 P, Light light)
+{
+	float3 V = normalize(P - light.lightPosition);
+	float cosDirection = dot(V, light.direction);
+	return smoothstep(light.cosOuterCone, light.cosInnerCone, cosDirection);
+}
 
 float Attenuation(float3 P, Light light)
 {
@@ -30,12 +40,13 @@ void PongLighting(float3 ojbPos,
 					)
 {
 	float attenuation = Attenuation(ojbPos, light);
+	float spot = SpotLighting(ojbPos, light);
 	// 漫反射光
 	float3 P = ojbPos.xyz; //顶点位置
 	float3 N = normalize(ojbNormal); //顶点位置法向量
 	float3 L = normalize(light.lightPosition - P);
 	float kDiffuse = max(dot(N, L), 0);
-	diffuseLight = material.Kd * light.lightColor * kDiffuse * attenuation;
+	diffuseLight = material.Kd * light.lightColor * kDiffuse * attenuation * spot;
 
 	// 镜面反射光
 	float3 V = normalize(eyePosition - P);
@@ -43,7 +54,7 @@ void PongLighting(float3 ojbPos,
 	float kSpecular = pow(max(dot(N ,H), 0), material.shininess);
 	if(kDiffuse <= 0)
 		kSpecular = 0;
-	specularLight = material.Ks * light.lightColor * kSpecular * attenuation;
+	specularLight = material.Ks * light.lightColor * kSpecular * attenuation * spot;
 }
   
 void TextureMain(out float4 oColor:COLOR,

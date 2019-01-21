@@ -19,9 +19,12 @@ static CGparameter changeCoordMatrix;
 static CGparameter globalAmbient; //环境光颜色
 static CGparameter lightColor[2]; //灯光颜色
 static CGparameter lightPosition[2]; //灯的位置
-static CGparameter Kc[2]; //灯的位置
-static CGparameter Kl[2]; //灯的位置
-static CGparameter Kq[2]; //灯的位置
+static CGparameter Kc[2];
+static CGparameter Kl[2];
+static CGparameter Kq[2];
+static CGparameter direction[2]; //灯的位置
+static CGparameter cosInnerCone[2]; //灯的位置
+static CGparameter cosOuterCone[2]; //灯的位置
 static CGparameter eyePosition;  //眼睛的位置
 static CGparameter Ke; //材质自身颜色
 static CGparameter Ka; //环境光系数
@@ -36,7 +39,7 @@ static const char* cgFFuncName = "TextureMain";
 static float curOffset = 0;
 static float stepOffset = 0.001;
 static float mGlobalAmbient[3] = { 0.1, 0.1, 0.05 };
-static float mLightColor[2][3] = { { 1, 1, 0.6 }, { 1, 0, 0.1 } };
+static float mLightColor[2][3] = { { 1, 1, 1 }, { 1, 1, 1 } };
 
 float projectionMatrix[16]; //投影矩阵
 
@@ -115,6 +118,12 @@ int main(int argc, char *argv[])
 	GET_FRAGMENT_PROGRAM_2(Kl[1], lights[1].Kl);
 	GET_FRAGMENT_PROGRAM_2(Kq[0], lights[0].Kq);
 	GET_FRAGMENT_PROGRAM_2(Kq[1], lights[1].Kq);
+	GET_FRAGMENT_PROGRAM_2(direction[0], lights[0].direction);
+	GET_FRAGMENT_PROGRAM_2(direction[1], lights[1].direction);
+	GET_FRAGMENT_PROGRAM_2(cosInnerCone[0], lights[0].cosInnerCone);
+	GET_FRAGMENT_PROGRAM_2(cosInnerCone[1], lights[1].cosInnerCone);
+	GET_FRAGMENT_PROGRAM_2(cosOuterCone[0], lights[0].cosOuterCone);
+	GET_FRAGMENT_PROGRAM_2(cosOuterCone[1], lights[1].cosOuterCone);
 	GET_FRAGMENT_PROGRAM_2(Ke, material.Ke);
 	GET_FRAGMENT_PROGRAM_2(Ka, material.Ka);
 	GET_FRAGMENT_PROGRAM_2(Kd, material.Kd);
@@ -192,13 +201,24 @@ void OnDraw()
 {
 	float translationMatrix[16], rotateMatrix[16], viewMatrix[16], finalMatrix[16], invMatrix[16];
 	float tempPosition[4];
+	float temp3Position[3];
 	float mLightPosition[2][4] = { {5 * sin(curOffset), 1, 5 * cos(curOffset), 1}, {5 * sin(-curOffset), 2, 5 * cos(-curOffset), 1} };
 	float mKc[2] = {0.3, 0.6};
 	float mKl[2] = {0.1, 0.2};
 	float mKq[2] = {0.03, 0.06};
 	float mEyePosition[4] = { 0, 0, 20 , 1};
+	float mDirection[2][3] = {
+		{-mLightPosition[0][0], -mLightPosition[0][1], -mLightPosition[0][2]},
+		{-mLightPosition[1][0], -mLightPosition[1][1], -mLightPosition[1][2]}
+	};
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	cgSetParameter1f(cosInnerCone[0], 0.9);
+	cgSetParameter1f(cosInnerCone[1], 0.9);
+	cgSetParameter1f(cosOuterCone[0], 0.8);
+	cgSetParameter1f(cosOuterCone[1], 0.8);
+
 	cgGLBindProgram(myCgVertexProgram);
 	CheckCgError("Bind Vertex Program Error");
 	cgGLEnableProfile(myCgVertexProfile);
@@ -235,6 +255,12 @@ void OnDraw()
 	cgSetParameter4fv(lightPosition[1], tempPosition);
 	transform(tempPosition, invMatrix, mEyePosition);
 	cgSetParameter4fv(eyePosition, tempPosition);
+	transformDirection(temp3Position, invMatrix, mDirection[0]);
+	normalizeVector(temp3Position);
+	cgSetParameter3fv(direction[0], temp3Position);
+	transformDirection(temp3Position, invMatrix, mDirection[1]);
+	normalizeVector(temp3Position);
+	cgSetParameter3fv(direction[1], temp3Position);
 
 	SetGoldMaterial();
 	glutSolidCone(1.5, 3.5, 20, 20);
@@ -252,36 +278,25 @@ void OnDraw()
 	cgSetParameter4fv(lightPosition[1], tempPosition);
 	transform(tempPosition, invMatrix, mEyePosition);
 	cgSetParameter4fv(eyePosition, tempPosition);
+	transformDirection(temp3Position, invMatrix, mDirection[0]);
+	normalizeVector(temp3Position);
+	cgSetParameter3fv(direction[0], temp3Position);
+	transformDirection(temp3Position, invMatrix, mDirection[1]);
+	normalizeVector(temp3Position);
+	cgSetParameter3fv(direction[1], temp3Position);
 
 	SetRubineMaterial();
 	glutSolidSphere(2.0, 40, 40);
-
-
-	cgSetParameter3f(lightPosition[0], 0, 0, 0);
-	makeTranslateMatrix(mLightPosition[0][0], mLightPosition[0][1], mLightPosition[0][2], translationMatrix);
-	
-	multMatrix(finalMatrix, viewMatrix, translationMatrix);
-	multMatrix(finalMatrix, projectionMatrix, finalMatrix);
-	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
-
-	SetLightMaterial();
-	glutSolidSphere(0.2, 12, 12);
-
-	cgSetParameter3f(lightPosition[1], 0, 0, 0);
-	makeTranslateMatrix(mLightPosition[1][0], mLightPosition[1][1], mLightPosition[1][2], translationMatrix);
-
-	multMatrix(finalMatrix, viewMatrix, translationMatrix);
-	multMatrix(finalMatrix, projectionMatrix, finalMatrix);
-	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
-
-	SetLightMaterial2();
-	glutSolidSphere(0.2, 12, 12);
 
 
 	multMatrix(finalMatrix, projectionMatrix, viewMatrix);
 	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
 	cgSetParameter3fv(lightPosition[0], mLightPosition[0]);
 	cgSetParameter3fv(lightPosition[1], mLightPosition[1]);
+	normalizeVector(mDirection[0]);
+	cgSetParameter3fv(direction[0], mDirection[0]);
+	normalizeVector(mDirection[1]);
+	cgSetParameter3fv(direction[1], mDirection[1]);
 	SetWallMaterial();
 	glBegin(GL_QUADS);
 		glNormal3f(0, 1, 0);
@@ -314,6 +329,27 @@ void OnDraw()
 		glVertex3f(6, -12, 12);
 		glVertex3f(6, 12, 12);
 	glEnd();
+
+
+	cgSetParameter3f(lightPosition[0], 0, 0, 0);
+	makeTranslateMatrix(mLightPosition[0][0], mLightPosition[0][1], mLightPosition[0][2], translationMatrix);
+
+	multMatrix(finalMatrix, viewMatrix, translationMatrix);
+	multMatrix(finalMatrix, projectionMatrix, finalMatrix);
+	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
+
+	SetLightMaterial();
+	glutSolidSphere(0.2, 12, 12);
+
+	cgSetParameter3f(lightPosition[1], 0, 0, 0);
+	makeTranslateMatrix(mLightPosition[1][0], mLightPosition[1][1], mLightPosition[1][2], translationMatrix);
+
+	multMatrix(finalMatrix, viewMatrix, translationMatrix);
+	multMatrix(finalMatrix, projectionMatrix, finalMatrix);
+	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
+
+	SetLightMaterial2();
+	glutSolidSphere(0.2, 12, 12);
 
 	cgUpdateProgramParameters(myCgVertexProgram);
 	cgUpdateProgramParameters(myCgFragmentProgram);
