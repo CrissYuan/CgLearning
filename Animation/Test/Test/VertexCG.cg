@@ -1,0 +1,18 @@
+void VertexMain(float4 iPosition:POSITION, 
+				out float4 oPosition:POSITION, 
+				float3 normal:NORMAL, //法向量
+				uniform float4x4 changeCoordMatrix,
+				uniform float scaleFactor, //震动幅度
+				uniform float frequency,  //震动频率
+				uniform float time, //时间
+				out float3 ojbPos:TEXCOORD0,
+				out float3 ojbNormal:TEXCOORD1
+				)
+{
+	float displacement = scaleFactor * 0.5 * (sin(iPosition.y * frequency * time) + 1);
+	float4 displacementDirection = float4(normal.x, normal.y, normal.z, 0);
+	float4 finalPosition = iPosition + displacement * displacementDirection;
+	oPosition = mul(changeCoordMatrix, finalPosition);
+	ojbPos = iPosition.xyz;
+	ojbNormal = normal;
+}
