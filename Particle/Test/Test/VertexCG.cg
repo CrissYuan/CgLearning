@@ -1,0 +1,17 @@
+
+void VertexMain(float4 iPosition:POSITION, 
+				out float4 oPosition:POSITION, //位置
+				float4 velocity:TEXCOORD0, //初始速度
+				float startTime:TEXCOORD1, //出生时刻
+				out float4 oColor: COLOR,
+				out float oSize:PSIZE, //大小
+				uniform float gravity, //重力
+				uniform float curTime, //当前时刻
+				uniform float4x4 changeCoordMatrix)
+{
+	float deltaTime = curTime - startTime;
+	float4 curPos = iPosition + velocity * deltaTime + gravity * 0.5 * deltaTime * deltaTime;
+	oPosition = mul(changeCoordMatrix, curPos);
+	oColor = float4(frac(float3(deltaTime, deltaTime, deltaTime)), 1);
+	oSize = -0.8 * deltaTime * deltaTime + 0.8 * deltaTime + 0.1 * curPos.y + 1;
+}

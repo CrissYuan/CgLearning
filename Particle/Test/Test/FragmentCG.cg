@@ -1,0 +1,4 @@
+void TextureMain(out float4 oColor:COLOR, float4 iColor:COLOR)
+{
+	oColor = iColor;
+}
