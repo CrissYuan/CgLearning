@@ -1,1 +1,5 @@
-﻿  Test.vcxproj -> C:\Users\Administrator\Desktop\Texture\Test\Debug\Test.exe
+﻿  Main.cpp
+f:\cglearning\particle\test\test\main.cpp(68): warning C4473: “fprintf”: 没有为格式字符串传递足够的参数
+  f:\cglearning\particle\test\test\main.cpp(68): note: 占位符和其参数预计 1 可变参数，但提供的却是 0 参数
+  f:\cglearning\particle\test\test\main.cpp(68): note: 缺失的可变参数 1 为格式字符串“%s”所需
+  Test.vcxproj -> F:\CgLearning\Particle\Test\Debug\Test.exe
