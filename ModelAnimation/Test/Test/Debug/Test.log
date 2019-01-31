@@ -1,3 +1,40 @@
-﻿  Main.cpp
-f:\cglearning\modelanimation\test\test\main.cpp(227): warning C4838: 从“double”转换到“float”需要收缩转换
-  Test.vcxproj -> F:\CgLearning\ModelAnimation\Test\Debug\Test.exe
+﻿  gli_convert.c
+  gli_misc.c
+  gli_scale.c
+  gli_tga.c
+  loadtex.c
+  md2file.c
+  md2normals.c
+  正在生成代码...
+  Main.cpp
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\main.cpp(227): warning C4838: 从“double”转换到“float”需要收缩转换
+  matrix.cpp
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(21): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(27): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(33): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(34): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(95): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(96): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(98): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(99): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(101): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(102): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(118): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(125): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(126): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(127): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(292): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(293): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(294): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(295): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(296): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(297): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(298): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(299): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(321): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(339): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(345): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\matrix.cpp(349): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+  md2render.cpp
+  正在生成代码...
+  Test.vcxproj -> D:\YewiiYanGits\CgLearing\CgLearning\ModelAnimation\Test\Debug\Test.exe
