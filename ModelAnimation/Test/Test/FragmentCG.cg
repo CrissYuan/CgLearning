@@ -88,7 +88,7 @@
 
 //Ä£ÐÍÌùÍ¼
 void TextureMain(float4 iColor:COLOR, 
-				float4 oColor:COLOR,
+				out float4 oColor:COLOR,
 				float2 iTexCoord:TEXCOORD0,
 				sampler2D texture,
 				uniform float2 scale

@@ -19,7 +19,7 @@ void VertexMain(float3 positionA:POSITION,
 				float2 iTexCoord:TEXCOORD0,
 				out float4 oPosition:POSITION,
 				out float2 oTexCoord:TEXCOORD0,
-				float4 oColor:COLOR,
+				out float4 oColor:COLOR,
 				uniform float weight,
 				uniform float4x4 changeCoordMatrix
 				)

@@ -55,6 +55,8 @@ static float curOffset = 0;
 static float stepOffset = 0.001;
 static float mGlobalAmbient[3] = { 0.1, 0.1, 0.05 };
 static float mLightColor[2][3] = { { 1, 1, 1 }, { 1, 1, 1 } };
+static int lastTime;
+static bool animating = false;
 
 float projectionMatrix[16]; //Õ∂”∞æÿ’Û
 
@@ -63,6 +65,8 @@ void OnDraw();
 void ReShape(int width, int height);
 void OnKeyBoard(unsigned char c, int x, int y);
 void CheckCgError(const char* situation);
+float AddDelta(float knightKnob, float detal, int numFrames);
+void Visibility(int state);
 //void SetGoldMaterial();
 
 int main(int argc, char *argv[])
@@ -73,8 +77,9 @@ int main(int argc, char *argv[])
 	glutInitWindowSize(300, 300);
 	glutCreateWindow(frameTitle);
 	glutDisplayFunc(&OnDraw);
+	glutVisibilityFunc(&Visibility);
 	glutKeyboardFunc(&OnKeyBoard);
-	glutReshapeFunc(ReShape);
+	glutReshapeFunc(&ReShape);
 
 	if (glewInit() != GLEW_OK)
 	{
@@ -103,7 +108,7 @@ int main(int argc, char *argv[])
 	CheckCgError("Create Program Error");
 	cgGLLoadProgram(myCgVertexProgram);
 	CheckCgError("Load Program Error");
-	#define GET_VERTEX_PROGRAM(name) \
+#define GET_VERTEX_PROGRAM(name) \
 	name = \
 	cgGetNamedParameter(myCgVertexProgram, #name);\
 	CheckCgError("Get Named "#name" Parameter Error");
@@ -124,7 +129,7 @@ int main(int argc, char *argv[])
 	CheckCgError("Create Program Error");
 	cgGLLoadProgram(myCgFragmentProgram);
 	CheckCgError("Load Program Error");
-	#define GET_FRAGMENT_PROGRAM(name) \
+#define GET_FRAGMENT_PROGRAM(name) \
 	name = \
 	cgGetNamedParameter(myCgFragmentProgram, #name);\
 	CheckCgError("Get Named "#name" Parameter Error");
@@ -233,18 +238,18 @@ float AddDelta(float knightKnob, float detal, int numFrames)
 	while (numFrames <= knightKnob)
 	{
 		knightKnob -= numFrames;
-		if (knightKnob < 0)
-			knightKnob = 0;
 	}
+	if (knightKnob < 0)
+		knightKnob = 0;
 	return knightKnob;
 }
 
 void OnDraw()
 {
-	float eyeRadius = 85;
+	float eyeRadius = 120;
 	frameA = floor(knightKnob);
-	frameB = floor(AddDelta(knightKnob, 1 ,m_knightModel->header.numFrames));
-	float m_EyePosition[3] = { sin(curOffset) * eyeRadius, 0, cos(curOffset) * eyeRadius };
+	frameB = frameA + 1 > m_knightModel->header.numFrames ? 0 : frameA + 1;
+	float m_EyePosition[3] = { cos(3.14/5) * eyeRadius, 0, sin(3.14 / 5) * eyeRadius };
 	float translationMatrix[16], rotateMatrix[16], viewMatrix[16], finalMatrix[16], invMatrix[16];
 	//float tempPosition[4];
 	//float temp3Position[3];
@@ -300,7 +305,7 @@ void OnDraw()
 	//cgSetParameter1f(Kl[1], mKl[0]);
 	//cgSetParameter1f(Kq[0], mKq[0]);
 	//cgSetParameter1f(Kq[1], mKq[0]);
-	
+
 	//transform(tempPosition, invMatrix, mLightPosition[0]);
 	//cgSetParameter4fv(lightPosition[0], tempPosition);
 	//transform(tempPosition, invMatrix, mLightPosition[1]);
@@ -423,13 +428,12 @@ void ReShape(int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-static int lastTime;
 void PicMoving()
 {
 	const float numSystem = 1000.0;
-	const int frameNumPerSec = 10;
+	const int frameNumPerSec = 6;
 	int nowTime = glutGet(GLUT_ELAPSED_TIME);
-	float detalTime = (nowTime - lastTime) / frameNumPerSec;
+	float detalTime = (nowTime - lastTime) / numSystem;
 	lastTime = nowTime;
 	detalTime *= frameNumPerSec;
 	knightKnob = AddDelta(knightKnob, detalTime, m_knightModel->header.numFrames);
@@ -441,9 +445,20 @@ void PicMoving()
 	glutPostRedisplay();
 }
 
+void Visibility(int state)
+{
+	if (state == GLUT_VISIBLE && animating)
+	{
+		lastTime = glutGet(GLUT_ELAPSED_TIME);
+		glutIdleFunc(PicMoving);
+	}
+	else {
+		glutIdleFunc(NULL);
+	}
+}
+
 void OnKeyBoard(unsigned char c, int x, int y)
 {
-	static bool animating = false;
 	switch (c)
 	{
 	case 27:
@@ -456,6 +471,7 @@ void OnKeyBoard(unsigned char c, int x, int y)
 		animating = !animating;
 		if (animating)
 		{
+			lastTime = glutGet(GLUT_ELAPSED_TIME);
 			glutIdleFunc(PicMoving);
 		}
 		else
