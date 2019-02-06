@@ -1,6 +1,6 @@
 ﻿  Main.cpp
-f:\cglearning\modelanimation\test\test\main.cpp(252): warning C4838: 从“double”转换到“float”需要收缩转换
-f:\cglearning\modelanimation\test\test\main.cpp(253): warning C4101: “rotateMatrix”: 未引用的局部变量
-f:\cglearning\modelanimation\test\test\main.cpp(253): warning C4101: “invMatrix”: 未引用的局部变量
-f:\cglearning\modelanimation\test\test\main.cpp(253): warning C4101: “translationMatrix”: 未引用的局部变量
-  Test.vcxproj -> F:\CgLearning\ModelAnimation\Test\Debug\Test.exe
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\main.cpp(193): warning C4838: 从“double”转换到“float”需要收缩转换
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\main.cpp(195): warning C4101: “tempPosition”: 未引用的局部变量
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\main.cpp(194): warning C4101: “rotateMatrix”: 未引用的局部变量
+d:\yewiiyangits\cglearing\cglearning\modelanimation\test\test\main.cpp(194): warning C4101: “translationMatrix”: 未引用的局部变量
+  Test.vcxproj -> D:\YewiiYanGits\CgLearing\CgLearning\ModelAnimation\Test\Debug\Test.exe

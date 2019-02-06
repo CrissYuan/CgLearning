@@ -1,98 +1,76 @@
-//struct Light
-//{
-//	float3 lightPosition;
-//	float3 lightColor;
-//	float Kc,Kl,Kq;
-//	float3 direction;
-//	float cosInnerCone;
-//	float cosOuterCone;
-//};
+struct Light
+{
+	float3 lightPosition;
+	float3 lightColor;
+	float Kc;
+	float Kl;
+	float Kq;
+};
 
-//struct Material
-//{
-//	float3 Ke; //材质自身颜色
-//	float3 Ka; //环境光系数
-//	float3 Kd; //漫反射光系数
-//	float3 Ks; //镜面射光系数
-//	float shininess; //材质光滑程度
-//};
+struct Material
+{
+	float3 Ke; //材质自身颜色
+	float3 Ka; //环境光系数
+	float3 Kd; //漫反射光系数
+	float3 Ks; //镜面射光系数
+	float shininess; //材质光滑程度
+};
 
-//float SpotLighting(float3 P, Light light)
-//{
-//	float3 V = normalize(P - light.lightPosition);
-//	float cosDirection = dot(V, light.direction);
-//	return smoothstep(light.cosOuterCone, light.cosInnerCone, cosDirection);
-//}
+float Attenuation(float3 P, Light light)
+{
+	float d = distance(P, light.lightPosition);
+	return 1 / (light.Kc + light.Kl * d + light.Kq * d* d);
+}
 
-//float Attenuation(float3 P, Light light)
-//{
-//	float d = distance(P, light.lightPosition);
-//	return 1 / (light.Kc + light.Kl * d + light.Kq * d* d);
-//}
+void PongLighting(float3 ojbPos, 
+					float3 ojbNormal, 
+					Light light, 
+					float3 eyePosition, 
+					Material material, 
+					out float3 diffuseLight, 
+					out float3 specularLight
+					)
+{
+	float attenuation = Attenuation(ojbPos, light);
+	// 漫反射光
+	float3 P = ojbPos.xyz; //顶点位置
+	float3 N = normalize(ojbNormal); //顶点位置法向量
+	float3 L = normalize(light.lightPosition - P);
+	float kDiffuse = max(dot(N, L), 0);
+	diffuseLight = material.Kd * light.lightColor * kDiffuse * attenuation;
 
-//void PongLighting(float3 ojbPos, 
-//					float3 ojbNormal, 
-//					Light light, 
-//					float3 eyePosition, 
-//					Material material, 
-//					out float3 diffuseLight, 
-//					out float3 specularLight
-//					)
-//{
-//	float attenuation = Attenuation(ojbPos, light);
-//	float spot = SpotLighting(ojbPos, light);
-//	// 漫反射光
-//	float3 P = ojbPos.xyz; //顶点位置
-//	float3 N = normalize(ojbNormal); //顶点位置法向量
-//	float3 L = normalize(light.lightPosition - P);
-//	float kDiffuse = max(dot(N, L), 0);
-//	diffuseLight = material.Kd * light.lightColor * kDiffuse * attenuation * spot;
-
-//	// 镜面反射光
-//	float3 V = normalize(eyePosition - P);
-//	float3 H = normalize(L + V);
-//	float kSpecular = pow(max(dot(N ,H), 0), material.shininess);
-//	if(kDiffuse <= 0)
-//		kSpecular = 0;
-//	specularLight = material.Ks * light.lightColor * kSpecular * attenuation * spot;
-//}
+	// 镜面反射光
+	float3 V = normalize(eyePosition - P);
+	float3 H = normalize(L + V);
+	float kSpecular = pow(max(dot(N ,H), 0), material.shininess);
+	if(kDiffuse <= 0)
+		kSpecular = 0;
+	specularLight = material.Ks * light.lightColor * kSpecular * attenuation;
+}
   
-//void TextureMain(out float4 oColor:COLOR,
-//				uniform float3 globalAmbient, //环境光颜色
-//				uniform Light lights[2],
-//				uniform float3 eyePosition,  //眼睛的位置
-//				uniform Material material,
-//				float3 ojbPos:TEXCOORD0,
-//				float3 ojbNormal:TEXCOORD1
-//				)
-//{
-//	// 自发光
-//	float3 emissiveLight = material.Ke;
-//	// 环境光
-//	float3 ambientLight = material.Ka * globalAmbient;
-//	float3 diffuseLight;
-//	float3 specularLight;
-//	oColor.xyz = 0;
-//	for(int i=0; i<2; i++)
-//	{
-//		PongLighting(ojbPos, ojbNormal, lights[i], eyePosition, material, diffuseLight, specularLight);
-//		oColor.xyz += diffuseLight + specularLight;
-//	}
-//	oColor.xyz += emissiveLight + ambientLight;
-//	float3 maxLight = {1,1,1};
-//	oColor.xyz = min(oColor.xyz, maxLight);
-//	oColor.x = min(oColor.x, 1);
-//	oColor.w = 1;
-//}
-
-
-//模型贴图
-void TextureMain(float4 iColor:COLOR, 
-				out float4 oColor:COLOR,
-				float2 iTexCoord:TEXCOORD0,
-				sampler2D texture,
-				uniform float2 scale
+void TextureMain(float3 ojbPos:TEXCOORD2, //顶点位置
+				float3 ojbNormal:TEXCOORD1, //法向量
+				float2 iTexCoord:TEXCOORD0, //uv位置
+				sampler2D texture, //贴图
+				uniform float2 scale, //缩放
+				out float4 oColor:COLOR, //输出颜色
+				uniform float3 globalAmbient, //环境光颜色
+				uniform Light light, //灯光
+				uniform float3 eyePosition,  //眼睛的位置
+				uniform Material material //材质
 				)
 {
-	oColor = iColor * tex2D(texture, iTexCoord * scale);
+	// 自发光
+	float3 emissiveLight = material.Ke;
+	// 环境光
+	float3 ambientLight = material.Ka * globalAmbient;
+	float3 diffuseLight;
+	float3 specularLight;
+	oColor.xyz = 0;
+	PongLighting(ojbPos, ojbNormal, light, eyePosition, material, diffuseLight, specularLight);
+	oColor.xyz += diffuseLight + specularLight + emissiveLight + ambientLight;
+	float3 maxLight = {1,1,1};
+	oColor.xyz = min(oColor.xyz, maxLight);
+	oColor.w = 1;
+	oColor = oColor * tex2D(texture, iTexCoord * scale);
 }

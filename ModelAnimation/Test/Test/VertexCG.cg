@@ -1,31 +1,19 @@
-//void VertexMain(float4 iPosition:POSITION, 
-//				out float4 oPosition:POSITION, 
-//				uniform float4x4 changeCoordMatrix,
-//				float3 normal:NORMAL, //法向量
-//				out float3 ojbPos:TEXCOORD0,
-//				out float3 ojbNormal:TEXCOORD1
-//				)
-//{
-//	oPosition = mul(changeCoordMatrix, iPosition);
-//	ojbPos = iPosition.xyz;
-//	ojbNormal = normal;
-//}
-
-
 //关键帧插值计算
-void VertexMain(float3 positionA:POSITION,
+void VertexMain(float3 normalA:NORMAL,
+				float3 positionA:POSITION,
+				float3 normalB:TEXCOORD2,
 				float3 positionB:TEXCOORD1,
-				float4 iColor:COLOR,
 				float2 iTexCoord:TEXCOORD0,
-				out float4 oPosition:POSITION,
+				out float3 ojbPos:TEXCOORD2,
+				out float3 ojbNormal:TEXCOORD1,
 				out float2 oTexCoord:TEXCOORD0,
-				out float4 oColor:COLOR,
 				uniform float weight,
-				uniform float4x4 changeCoordMatrix
+				uniform float4x4 changeCoordMatrix,
+				out float4 oPosition:POSITION
 				)
 {
-	float3 position = lerp(positionA, positionB, weight);
-	oPosition = mul(changeCoordMatrix, float4(position, 1));
+	oPosition = mul(changeCoordMatrix, float4(lerp(positionA, positionB, weight), 1));
+	ojbPos = oPosition.xyz;
+	ojbNormal = normalize(lerp(normalA, normalB, weight));
 	oTexCoord = iTexCoord;
-	oColor = iColor;
 }
