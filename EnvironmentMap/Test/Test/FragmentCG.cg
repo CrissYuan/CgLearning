@@ -1,0 +1,12 @@
+void TextureMain(float2 texCoord:TEXCOORD0,
+				float3 reflectRay:TEXCOORD1,
+				uniform float reflectivity,
+				uniform sampler2D decalMap,
+				uniform samplerCUBE environmentMap,
+				out float4 oColor : COLOR
+				)
+{
+	float4 reflectColor = texCUBE(environmentMap, reflectRay);
+	float4 decalColor = tex2D(decalMap, texCoord);
+	oColor = lerp(decalColor, reflectColor, reflectivity);
+}

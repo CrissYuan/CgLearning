@@ -1,0 +1,22 @@
+void VertexMain(float4 iPosition:POSITION, 
+				float3 normal:NORMAL, //∑®œÚ¡ø
+				float2 iTexCoord:TEXCOORD0,
+
+				out float2 oTexCoord:TEXCOORD0,
+				out float3 reflectRay:TEXCOORD1,
+				out float4 oPosition:POSITION, 
+
+				uniform float4x4 changeCoordMatrix,
+				uniform float4x4 modelToWroldCoordMatrix,
+				uniform float3 eyePosition
+				)
+{
+	oPosition = mul(changeCoordMatrix, iPosition);
+	oTexCoord = iTexCoord;
+	float3 wPos = mul(modelToWroldCoordMatrix, iPosition).xyz;
+	float3 wNor = mul(modelToWroldCoordMatrix, float4(normal, 1)).xyz;
+	wNor = normalize(wNor);
+
+	float3 I = wPos - eyePosition;
+	reflectRay = reflect(I, wNor);
+}
