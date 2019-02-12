@@ -1,0 +1,23 @@
+void TextureMain(float3 reflectRay:TEXCOORD0,
+				float3 Tred:TEXCOORD1,
+				float3 Tgreen:TEXCOORD2,
+				float3 Tblue:TEXCOORD3,
+				float4 reflectionCoefficient:COLOR,
+
+				uniform samplerCUBE environmentMapRef,
+				uniform samplerCUBE environmentMapRed,
+				uniform samplerCUBE environmentMapGreen,
+				uniform samplerCUBE environmentMapBlue,
+				uniform float reflectivity,
+
+				out float4 oColor : COLOR
+				)
+{
+	float4 reflectColor = texCUBE(environmentMapRef, reflectRay);
+	float4 refractColor;
+	refractColor.x = texCUBE(environmentMapRed, Tred).x;
+	refractColor.y = texCUBE(environmentMapGreen, Tgreen).y;
+	refractColor.z = texCUBE(environmentMapBlue, Tblue).z;
+	refractColor.w = 1;
+	oColor = lerp(reflectColor, refractColor, reflectivity);
+}

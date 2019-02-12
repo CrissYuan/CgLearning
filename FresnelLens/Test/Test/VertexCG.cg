@@ -1,0 +1,34 @@
+void VertexMain(float4 iPosition:POSITION, 
+				float3 normal:NORMAL, //∑®œÚ¡ø
+				
+				out float3 reflectRay:TEXCOORD0,
+				out float3 Tred:TEXCOORD1,
+				out float3 Tgreen:TEXCOORD2,
+				out float3 Tblue:TEXCOORD3,
+				out float4 reflectionCoefficient:COLOR,
+				out float4 oPosition:POSITION, 
+
+				uniform float fresnelBias,
+				uniform float fresnelScale,
+				uniform float fresnelPower,
+				uniform float3 etaRatio,
+				uniform float4x4 changeCoordMatrix,
+				uniform float4x4 modelToWroldCoordMatrix,
+				uniform float3 eyePosition
+				)
+{
+	oPosition = mul(changeCoordMatrix, iPosition);
+	float3 wPos = mul(modelToWroldCoordMatrix, iPosition).xyz;
+	float3 wNor = mul(modelToWroldCoordMatrix, float4(normal, 1)).xyz;
+	wNor = normalize(wNor);
+	float3 I = wPos - eyePosition;
+
+	reflectRay = reflect(I, wNor);
+	I = normalize(I);
+	Tred = refract(I, wNor, etaRatio.x);
+	Tgreen = refract(I, wNor, etaRatio.y);
+	Tblue = refract(I, wNor, etaRatio.z);
+
+	reflectionCoefficient = fresnelBias + fresnelScale * pow(1 + dot(I,wNor), fresnelPower);
+	reflectionCoefficient = max(0, min(1, reflectionCoefficient));
+}
