@@ -1,3 +1,5 @@
 ﻿  Main.cpp
-d:\yewiiyangits\cglearing\cglearning\fog\test\test\main.cpp(119): warning C4838: 从“double”转换到“float”需要收缩转换
-  Test.vcxproj -> D:\YewiiYanGits\CgLearing\CgLearning\Fog\Test\Debug\Test.exe
+f:\cglearning\fog\test\test\main.cpp(331): warning C4101: “y”: 未引用的局部变量
+f:\cglearning\fog\test\test\main.cpp(331): warning C4101: “x”: 未引用的局部变量
+f:\cglearning\fog\test\test\main.cpp(351): warning C4838: 从“double”转换到“float”需要收缩转换
+  Test.vcxproj -> F:\CgLearning\Fog\Test\Debug\Test.exe

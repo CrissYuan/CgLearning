@@ -38,4 +38,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="BuildingRoof.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="BuildingWindows.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="Pavement.dds">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
 </Project>
