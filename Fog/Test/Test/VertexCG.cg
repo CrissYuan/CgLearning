@@ -1,0 +1,13 @@
+void VertexMain(float4 iPosition:POSITION, 
+				float4 iColor:COLOR,
+				float2 iTexCoord:TEXCOORD0,
+				uniform float4x4 changeCoordMatrix,
+				out float4 oColor:COLOR,
+				out float4 oPosition:POSITION,
+				out float2 oTexCoord:TEXCOORD0
+				)
+{
+	oColor = iColor;
+	oPosition = mul(changeCoordMatrix, iPosition);
+	oTexCoord = iTexCoord;
+}

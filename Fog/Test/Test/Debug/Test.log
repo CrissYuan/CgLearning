@@ -1,0 +1,3 @@
+﻿  Main.cpp
+d:\yewiiyangits\cglearing\cglearning\fog\test\test\main.cpp(119): warning C4838: 从“double”转换到“float”需要收缩转换
+  Test.vcxproj -> D:\YewiiYanGits\CgLearing\CgLearning\Fog\Test\Debug\Test.exe

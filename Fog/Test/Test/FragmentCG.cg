@@ -1,0 +1,11 @@
+struct texture_Output
+{
+	float3 color:COLOR;
+};
+
+texture_Output FragmentMain(float2 texCoord:TEXCOORD0, uniform sampler2D pic:TEX0)
+{
+	texture_Output result;
+	result.color = tex2D(pic, texCoord);
+	return result;
+}
