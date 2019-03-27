@@ -16,8 +16,8 @@
 #define ct_assert(b)         ct_assert_i(b,__LINE__)
 #define ct_assert_i(b,line)  ct_assert_ii(b,line)
 #define ct_assert_ii(b,line) void compile_time_assertion_failed_in_line_##line(int _compile_time_assertion_failed_in_line_##line[(b) ? 1 : -1])
-#define CITY_COLS 22
-#define CITY_ROWS 22
+#define CITY_COLS 20
+#define CITY_ROWS 20
 
 static CGcontext myCgContext;
 static CGprofile myCgVertexProfile;
@@ -33,7 +33,7 @@ static const char* cgFFileName = "FragmentCG.cg";
 static const char* cgFFuncName = "FragmentMain";
 
 static float projectionMatrix[16];
-static float eyeHeight = 0;
+static float eyeHeight = 8;
 static float eyeAngle = 0;
 static int beginx, beginy;
 static int supports_texture_anisotropy = 0;
@@ -318,17 +318,108 @@ int main(int argc, char *argv[])
 
 static void DrawBuilding(float x, float y, float height)
 {
+	static GLfloat streetColor[3] = { 1, 1, 1 };
+	//绘制街道
+	glBindTexture(GL_TEXTURE_2D, TO_PAVEMRNT);
+	glColor3fv(streetColor);
+	glBegin(GL_TRIANGLE_FAN);
+		glTexCoord2f(1.0 / 4.0, 1.0 / 4.0);
+		glVertex3f(x + 1, 0, y + 1);
+		glTexCoord2f(4.0 / 4.0, 1.0 / 4.0);
+		glVertex3f(x + 4, 0, y + 1);
+		glTexCoord2f(4.0 / 4.0, 0.0 / 4.0);
+		glVertex3f(x + 4, 0, y + 0);
+		glTexCoord2f(0.0 / 4.0, 0.0 / 4.0);
+		glVertex3f(x + 0, 0, y + 0);
+		glTexCoord2f(0.0 / 4.0, 4.0 / 4.0);
+		glVertex3f(x + 0, 0, y + 4);
+		glTexCoord2f(1.0 / 4.0, 4.0 / 4.0);
+		glVertex3f(x + 1, 0, y + 4);
+	glEnd();
 
+	//绘制楼顶
+	static GLfloat roof_coords[4][2] = { {1, 1}, {1, 0}, {0, 0}, {0, 1} };
+	GLfloat rand_color = Random0To1() / 3 + 0.5;
+	static GLfloat roofColor[3] = { rand_color, rand_color, rand_color };
+	const int roof_index = rand() % 4;
+	glBindTexture(GL_TEXTURE_2D, TO_ROOF);
+	glColor3fv(roofColor);
+	glBegin(GL_QUADS);
+		glTexCoord2fv(roof_coords[(roof_index + 0) % 4]);
+		glVertex3f(x + 4, height, y + 4);
+		glTexCoord2fv(roof_coords[(roof_index + 1) % 4]);
+		glVertex3f(x + 4, height, y + 1);
+		glTexCoord2fv(roof_coords[(roof_index + 2) % 4]);
+		glVertex3f(x + 1, height, y + 1);
+		glTexCoord2fv(roof_coords[(roof_index + 3) % 4]);
+		glVertex3f(x + 1, height, y + 4);
+	glEnd();
+
+	//绘制楼体
+	float topTex = 1 + floor(height / 2);
+	float deltaHeight = height / topTex;
+	float tex0, tex1, height0, height1 = 0;
+	GLfloat sideColor[3] = { Random0To1()*0.6 + 0.4, Random0To1()*0.6 + 0.4, Random0To1()*0.6 + 0.4 };
+	glBindTexture(GL_TEXTURE_2D, TO_SIDES);
+	glColor3fv(sideColor);
+	glBegin(GL_QUADS);
+		for (tex0 = 0, tex1 = 1, height0 = 0, height1 = deltaHeight;
+			tex0 < topTex; 
+			tex0++, tex1++, height0 += deltaHeight, height1 += deltaHeight)
+		{
+			//side1
+			glTexCoord2f(0, tex0);
+			glVertex3f(x + 1, height0, y + 1);
+			glTexCoord2f(0, tex1);
+			glVertex3f(x + 1, height1, y + 1);
+			glTexCoord2f(1, tex1);
+			glVertex3f(x + 4, height1, y + 1);
+			glTexCoord2f(1, tex0);
+			glVertex3f(x + 4, height0, y + 1);
+			//side2
+			glTexCoord2f(1, tex0);
+			glVertex3f(x + 1, height0, y + 4);
+			glTexCoord2f(1, tex1);
+			glVertex3f(x + 1, height1, y + 4);
+			glTexCoord2f(0, tex1);
+			glVertex3f(x + 1, height1, y + 1);
+			glTexCoord2f(0, tex0);
+			glVertex3f(x + 1, height0, y + 1);
+			//side3
+			glTexCoord2f(0, tex0);
+			glVertex3f(x + 4, height0, y + 1);
+			glTexCoord2f(0, tex1);
+			glVertex3f(x + 4, height1, y + 1);
+			glTexCoord2f(1, tex1);
+			glVertex3f(x + 4, height1, y + 4);
+			glTexCoord2f(1, tex0);
+			glVertex3f(x + 4, height0, y + 4);
+			//side4
+			glTexCoord2f(1, tex0);
+			glVertex3f(x + 4, height0, y + 4);
+			glTexCoord2f(1, tex1);
+			glVertex3f(x + 4, height1, y + 4);
+			glTexCoord2f(0, tex1);
+			glVertex3f(x + 1, height1, y + 4);
+			glTexCoord2f(0, tex0);
+			glVertex3f(x + 1, height0, y + 4);
+		}
+	glEnd();
 }
 
 static void DrawCity()
 {
-	srand(time(0));
+	//srand(time(0));
+	srand(999);
 	for (int i = 0; i < CITY_COLS; i++)
 	{
 		for (int j = 0; j < CITY_ROWS; j++)
 		{
 			float x, y, height = 0;
+			x = 4 * i - (2 * CITY_COLS + 0.5);
+			y = 4 * j - (2 * CITY_ROWS + 0.5);
+			height = 1.0 + Random0To1() * 10;
+			DrawBuilding(x, y, height);
 		}
 	}
 }
@@ -350,7 +441,7 @@ void OnDraw()
 	float eyeRadius = 7;
 	float mEyePosition[4] = { eyeRadius * sin(eyeAngle), eyeHeight, eyeRadius * cos(eyeAngle) , 1 };
 
-	makeLookAtMatrix(mEyePosition[0], mEyePosition[1], mEyePosition[2], 0, 0, 0, 0, 1, 0, viewMatrix);
+	makeLookAtMatrix(mEyePosition[0], mEyePosition[1], mEyePosition[2], 0, 8, 0, 0, 1, 0, viewMatrix);
 	makeTranslateMatrix(0, 0, 0, translateMatrix);
 	makeRotateMatrix(0, 0, 1, 0, rotateMatrix);
 	multMatrix(finalMatrix, translateMatrix, rotateMatrix);
@@ -361,14 +452,8 @@ void OnDraw()
 	cgUpdateProgramParameters(myCgVertexProgram);
 	cgUpdateProgramParameters(myCgFragmentProgram);
 
-	glBegin(GL_TRIANGLES);
-		glTexCoord2f(0.0, 1.0);
-		glVertex2f(-0.8, 0.8);
-		glTexCoord2f(1.0, 1.0);
-		glVertex2f(0.8, 0.8);
-		glTexCoord2f(0.5, 0.0);
-		glVertex2f(0.0, -0.8);
-	glEnd();
+	DrawCity();
+
 	cgGLDisableProfile(myCgVertexProfile);
 	CheckCgError("Disable Vertex Profile Error");
 

@@ -3,9 +3,12 @@ struct texture_Output
 	float3 color:COLOR;
 };
 
-texture_Output FragmentMain(float2 texCoord:TEXCOORD0, uniform sampler2D pic:TEX0)
+void FragmentMain(float2 texCoord:TEXCOORD0, 
+					float4 iColor:COLOR,
+					uniform sampler2D pic:TEX0,
+					out float4 oColor:COLOR)
 {
 	texture_Output result;
-	result.color = tex2D(pic, texCoord);
-	return result;
+	//oColor = tex2D(pic, texCoord);
+	oColor = iColor * tex2D(pic, texCoord);
 }
