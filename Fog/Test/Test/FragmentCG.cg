@@ -1,14 +1,15 @@
-struct texture_Output
-{
-	float3 color:COLOR;
-};
-
 void FragmentMain(float2 texCoord:TEXCOORD0, 
 					float4 iColor:COLOR,
-					uniform sampler2D pic:TEX0,
+					float fogExponent:TEXCOORD1,
+
+					uniform sampler2D textureParameter:TEX0,
+					uniform float3 fogColor,
+
 					out float4 oColor:COLOR)
 {
-	texture_Output result;
-	//oColor = tex2D(pic, texCoord);
-	oColor = iColor * tex2D(pic, texCoord);
+	float fogFactor = exp2(-abs(fogExponent));
+	float4 tempColor = iColor * tex2D(textureParameter, texCoord);
+
+	oColor.xyz = lerp(fogColor, tempColor.xyz, fogFactor);
+	oColor.w = iColor.w;
 }

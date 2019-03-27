@@ -1,4 +1,4 @@
 ﻿  Main.cpp
-d:\yewiiyangits\cglearing\cglearning\fog\test\test\main.cpp(362): warning C4838: 从“double”转换到“GLfloat”需要收缩转换
-d:\yewiiyangits\cglearing\cglearning\fog\test\test\main.cpp(442): warning C4838: 从“double”转换到“float”需要收缩转换
-  Test.vcxproj -> D:\YewiiYanGits\CgLearing\CgLearning\Fog\Test\Debug\Test.exe
+f:\cglearning\fog\test\test\main.cpp(376): warning C4838: 从“double”转换到“GLfloat”需要收缩转换
+f:\cglearning\fog\test\test\main.cpp(456): warning C4838: 从“double”转换到“float”需要收缩转换
+  Test.vcxproj -> F:\CgLearning\Fog\Test\Debug\Test.exe

@@ -24,8 +24,11 @@ static CGprofile myCgVertexProfile;
 static CGprogram myCgVertexProgram;
 static CGprofile myCgFragmentProfile;
 static CGprogram myCgFragmentProgram;
+static CGparameter fogDensity;
+static CGparameter eyeChangeCoordMatrix;
 static CGparameter changeCoordMatrix;
 static CGparameter textureParameter;
+static CGparameter fogColor;
 static const char* frameTitle = "Cg Test";
 static const char* cgVFileName = "VertexCG.cg";
 static const char* cgVFuncName = "VertexMain";
@@ -35,6 +38,8 @@ static const char* cgFFuncName = "FragmentMain";
 static float projectionMatrix[16];
 static float eyeHeight = 8;
 static float eyeAngle = 0;
+static float mFogDensity = 0.08f;
+static float mFogColor[3] = {0.9, 0.8, 0.8};
 static int beginx, beginy;
 static int supports_texture_anisotropy = 0;
 static int moving = 0;
@@ -240,7 +245,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	glClearColor(0, 0, 0, 0);
+	glClearColor(mFogColor[0], mFogColor[1], mFogColor[2], 0);
 	glEnable(GL_DEPTH_TEST);
 
 	supports_texture_anisotropy = glutExtensionSupported("GL_EXT_texture_filter_anisotropic");
@@ -270,7 +275,11 @@ int main(int argc, char *argv[])
 	cgGetNamedParameter(myCgVertexProgram, #name);\
 	CheckCgError("Get Named "#name" Parameter Error");
 
+	GET_VERTEX_PROGRAM(eyeChangeCoordMatrix);
 	GET_VERTEX_PROGRAM(changeCoordMatrix);
+	GET_VERTEX_PROGRAM(fogDensity);
+
+	cgSetParameter1f(fogDensity, mFogDensity);
 
 	myCgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
 	cgGLSetOptimalOptions(myCgFragmentProfile);
@@ -285,11 +294,16 @@ int main(int argc, char *argv[])
 	CheckCgError("Create Program Error");
 	cgGLLoadProgram(myCgFragmentProgram);
 	CheckCgError("Load Program Error");
-	textureParameter = cgGetNamedParameter(myCgFragmentProgram, "pic");
-	CheckCgError("Get Named Parameter Error");
-	//cgGLSetTextureParameter(textureParameter, 31); //31ÎªÎÆÀí±àºÅ
-	cgGLSetTextureParameter(textureParameter, TO_SIDES);
-	CheckCgError("Set Texture Parameter Error");
+
+	#define GET_FRAGMENT_PROGRAM(name) \
+	name = \
+	cgGetNamedParameter(myCgFragmentProgram, #name);\
+	CheckCgError("Get Named "#name" Parameter Error");
+
+	GET_FRAGMENT_PROGRAM(textureParameter);
+	GET_FRAGMENT_PROGRAM(fogColor);
+
+	cgSetParameter3fv(fogColor, mFogColor);
 
 	glBindTexture(GL_TEXTURE_2D, TO_SIDES);
 	LoadDecalFromDDS("BuildingWindows.dds");
@@ -446,6 +460,7 @@ void OnDraw()
 	makeRotateMatrix(0, 0, 1, 0, rotateMatrix);
 	multMatrix(finalMatrix, translateMatrix, rotateMatrix);
 	multMatrix(finalMatrix, viewMatrix, finalMatrix);
+	cgSetMatrixParameterfr(eyeChangeCoordMatrix, finalMatrix);
 	multMatrix(finalMatrix, projectionMatrix, finalMatrix);
 	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
 
@@ -469,6 +484,20 @@ void OnKeyBoard(unsigned char c, int x, int y)
 {
 	switch (c)
 	{
+	case '+':
+		mFogDensity *= 1.5;
+		if (mFogDensity < 0)
+			fogDensity = 0;
+		cgSetParameter1f(fogDensity, mFogDensity);
+		glutPostRedisplay();
+		break;
+	case '-':
+		mFogDensity /= 1.5;
+		if (mFogDensity < 0)
+			fogDensity = 0;
+		cgSetParameter1f(fogDensity, mFogDensity);
+		glutPostRedisplay();
+		break;
 	case 27:
 		cgDestroyProgram(myCgVertexProgram);
 		cgDestroyProgram(myCgFragmentProgram);

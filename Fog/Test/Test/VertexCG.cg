@@ -1,12 +1,18 @@
 void VertexMain(float4 iPosition:POSITION, 
 				float4 iColor:COLOR,
 				float2 iTexCoord:TEXCOORD0,
+				uniform float fogDensity,
+				uniform float4x4 eyeChangeCoordMatrix,
 				uniform float4x4 changeCoordMatrix,
 				out float4 oColor:COLOR,
 				out float4 oPosition:POSITION,
-				out float2 oTexCoord:TEXCOORD0
+				out float2 oTexCoord:TEXCOORD0,
+				out float fogExponent:TEXCOORD1
 				)
 {
+	float3 eysPosition = mul(eyeChangeCoordMatrix, iPosition).xyz;
+	float fogDitance = length(eysPosition);
+	fogExponent = fogDitance * fogDensity;
 	oColor = iColor;
 	oPosition = mul(changeCoordMatrix, iPosition);
 	oTexCoord = iTexCoord;
