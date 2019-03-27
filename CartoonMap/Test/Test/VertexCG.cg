@@ -1,0 +1,26 @@
+void VertexMain(float4 iPosition:POSITION, 
+				float3 normal:NORMAL, //∑®œÚ¡ø
+				
+				uniform float4x4 changeCoordMatrix,
+				uniform float3 eyePosition,
+				uniform float3 lightPosition,
+				uniform float shininess,
+
+				out float4 oPosition:POSITION, 
+				out float diffuseLight:TEXCOORD0,
+				out float specularLight:TEXCOORD1,
+				out float edge:TEXCOORD2
+				)
+{
+	float3 N = normalize(normal);
+	float3 L = normalize(lightPosition - iPosition.xyz);
+	diffuseLight = max(dot(N, L), 0);
+	float3 V = normalize(eyePosition - iPosition.xyz);
+	float3 H = normalize(L + V);
+	specularLight = pow(max(dot(N, H), 0), shininess);
+	if(diffuseLight <= 0)
+		specularLight = 0;
+	edge = max(dot(N, V), 0);
+
+	oPosition = iPosition;
+}

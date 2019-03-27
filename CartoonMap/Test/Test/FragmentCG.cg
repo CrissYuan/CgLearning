@@ -1,0 +1,18 @@
+void TextureMain(float diffuseLight:TEXCOORD0,
+				float specularLight:TEXCOORD1,
+				float edge:TEXCOORD2,
+
+				uniform float Kd,
+				uniform float Ks,
+				uniform sampler1D diffuseRamp,
+				uniform sampler1D specularRamp,
+				uniform sampler1D edgeRamp,
+
+				out float4 oColor : COLOR
+				)
+{
+	diffuseLight  = tex1D(diffuseRamp, diffuseLight).x;
+	specularLight = tex1D(specularRamp, specularLight).x;
+	edge          = tex1D(edgeRamp, edge).x;
+	oColor        = edge * (Kd * diffuseLight + Ks * specularLight);
+}
