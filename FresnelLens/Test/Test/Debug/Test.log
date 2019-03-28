@@ -1,7 +1,32 @@
 ﻿  Main.cpp
-d:\yewiiyangits\cglearing\cglearning\fragmentillumination\test\test\main.cpp(152): warning C4838: 从“double”转换到“float”需要收缩转换
-d:\yewiiyangits\cglearing\cglearning\fragmentillumination\test\test\main.cpp(394): warning C4101: “i”: 未引用的局部变量
-d:\yewiiyangits\cglearing\cglearning\fragmentillumination\test\test\main.cpp(391): warning C4101: “words”: 未引用的局部变量
-d:\yewiiyangits\cglearing\cglearning\fragmentillumination\test\test\main.cpp(541): warning C4101: “i”: 未引用的局部变量
-d:\yewiiyangits\cglearing\cglearning\fragmentillumination\test\test\main.cpp(538): warning C4101: “words”: 未引用的局部变量
-  Test.vcxproj -> D:\YewiiYanGits\CgLearing\CgLearning\Fragmentillumination\Test\Debug\Test.exe
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\main.cpp(152): warning C4838: 从“double”转换到“float”需要收缩转换
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\main.cpp(394): warning C4101: “i”: 未引用的局部变量
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\main.cpp(391): warning C4101: “words”: 未引用的局部变量
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\main.cpp(541): warning C4101: “i”: 未引用的局部变量
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\main.cpp(538): warning C4101: “words”: 未引用的局部变量
+  matrix.cpp
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(21): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(27): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(33): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(34): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(95): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(96): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(98): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(99): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(101): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(102): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(118): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(125): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(126): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(127): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(292): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(293): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(294): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(295): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(296): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(297): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(298): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(299): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+d:\yewiiyangits\cglearing\cglearning\fresnellens\test\test\matrix.cpp(321): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+  正在生成代码...
+  Test.vcxproj -> D:\YewiiYanGits\CgLearing\CgLearning\FresnelLens\Test\Debug\Test.exe

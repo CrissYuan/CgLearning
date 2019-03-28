@@ -323,7 +323,7 @@ void DrawMonkeyHead()
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), MonkeyHead_vertices);
-	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), MonkeyHead_vertices);
+	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), MonkeyHead_normals);
 	glTexCoordPointer(2, GL_FLOAT, 2 * sizeof(GLfloat), MonkeyHead_vertices);
 	glDrawElements(GL_TRIANGLES, 3 * MonkeyHead_num_of_triangles, GL_UNSIGNED_SHORT, MonkeyHead_triangles);
 }
