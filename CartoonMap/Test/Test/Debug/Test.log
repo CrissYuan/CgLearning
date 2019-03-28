@@ -1,3 +1,4 @@
 ﻿  Main.cpp
-d:\yewiiyangits\cglearing\cglearning\cartoonmap\test\test\main.cpp(126): warning C4838: 从“double”转换到“float”需要收缩转换
-  Test.vcxproj -> D:\YewiiYanGits\CgLearing\CgLearning\CartoonMap\Test\Debug\Test.exe
+f:\cglearning\cartoonmap\test\test\main.cpp(182): warning C4838: 从“double”转换到“float”需要收缩转换
+f:\cglearning\cartoonmap\test\test\main.cpp(183): warning C4838: 从“double”转换到“float”需要收缩转换
+  Test.vcxproj -> F:\CgLearning\CartoonMap\Test\Debug\Test.exe

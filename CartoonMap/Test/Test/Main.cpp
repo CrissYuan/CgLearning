@@ -19,11 +19,11 @@ static CGprogram myCgVertexProgram;
 static CGprofile myCgFragmentProfile;
 static CGprogram myCgFragmentProgram;
 static CGparameter changeCoordMatrix;
-static CGparameter modelToWroldCoordMatrix;
 static CGparameter eyePosition;
-static CGparameter reflectivity;
-static CGparameter decalMap;
-static CGparameter environmentMap;
+static CGparameter lightPosition;
+static CGparameter shininess;
+static CGparameter Kd;
+static CGparameter Ks;
 
 static const char* frameTitle = "Cg Test";
 static const char* cgVFileName = "VertexCG.cg";
@@ -32,11 +32,26 @@ static const char* cgFFileName = "FragmentCG.cg";
 static const char* cgFFuncName = "TextureMain";
 static float curOffset = 0;
 static float stepOffset = 0.001;
-static float mReflectivity = 0.50f;
+
 static bool  moving = false;
 static int   beginx, beginy;
-static float eyeAngle = 0;
-static float eyeHeight = 0;
+static bool  lmoving = false;
+static int   lbeginx, lbeginy;
+
+static float mEyeAngle = 0;
+static float mEyeHeight = 0;
+static float mLightAngle = 0;
+static float mLightHeight = 1;
+static float mShininess = 9;
+static float mKd[4] = { 0.15, 0.18, 0.33, 0.1 };
+static float mKs[4] = { 0.66, 0.73, 1.00, 0.0 };
+
+enum
+{
+	TO_DIFFUSE_RAMP = 1,
+	TO_SPECULAR_RAMP,
+	TO_EDGE_RAMP
+};
 
 float projectionMatrix[16]; //Õ∂”∞æÿ’Û
 
@@ -51,6 +66,7 @@ void OnMouseDrag(int x, int y);
 float DiffuseRamp(float x);
 float SpecularRamp(float x);
 float EdgeRamp(float x);
+void LoadRamp(GLuint texIndex, int size, float(*func)(float x));
 
 int main(int argc, char *argv[])
 {
@@ -69,7 +85,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "failed to initalize GLEW.\n");
 		exit(1);
 	}
-	glClearColor(0.5, 0, 0, 0);
+	glClearColor(0.41, 0.07, 0.14, 0);
 	glEnable(GL_DEPTH_TEST);
 	myCgContext = cgCreateContext();
 	cgGLSetManageTextureParameters(myCgContext, CG_TRUE);
@@ -92,8 +108,6 @@ int main(int argc, char *argv[])
 	CheckCgError("Get Named "#name" Parameter Error");
 
 	GET_VERTEX_PROGRAM(changeCoordMatrix);
-	GET_VERTEX_PROGRAM(modelToWroldCoordMatrix);
-	GET_VERTEX_PROGRAM(eyePosition);
 
 	myCgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
 	cgGLSetOptimalOptions(myCgFragmentProfile);
@@ -112,21 +126,47 @@ int main(int argc, char *argv[])
 	name = \
 	cgGetNamedParameter(myCgFragmentProgram, #name);\
 	CheckCgError("Get Named "#name" Parameter Error");
-	GET_FRAGMENT_PROGRAM(reflectivity);
-	CheckCgError("Get Named Parameter Error");
+	GET_FRAGMENT_PROGRAM(eyePosition);
+	GET_FRAGMENT_PROGRAM(lightPosition);
+	GET_FRAGMENT_PROGRAM(shininess);
+	GET_FRAGMENT_PROGRAM(Kd);
+	GET_FRAGMENT_PROGRAM(Ks);
 
+	cgSetParameter1f(shininess, mShininess);
+
+	cgSetParameter4fv(Kd, mKd);
+	cgSetParameter4fv(Ks, mKs);
+	for (int i = 0; i < 3; i++)
+	{
+		static GLuint texIndex[3] = { TO_DIFFUSE_RAMP, TO_SPECULAR_RAMP,TO_EDGE_RAMP };
+		static const char* parameterName[3] = { "diffuseRamp", "specularRamp", "edgeRamp" };
+		static float(*func[3]) (float x) = { DiffuseRamp, SpecularRamp, EdgeRamp };
+		CGparameter sampler;
+		sampler = cgGetNamedParameter(myCgFragmentProgram, parameterName[i]);
+		LoadRamp(texIndex[i], 256, func[i]);
+		cgGLSetTextureParameter(sampler, texIndex[i]);
+	}
+	CheckCgError("Get Named Parameter Error");
 
 	glutMainLoop();
 	return 0;
 }
 
+void LoadMVP(const float modelView[16])
+{
+	float target[16];
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			target[i * 4 + j] = modelView[j * 4 + i];
+		}
+	}
+	glLoadMatrixf(target);
+}
+
 void OnDraw()
 {
-	float translationMatrix[16], rotateMatrix[16], viewMatrix[16], finalMatrix[16];
-	float mEyePosition[4] = { 6 * sin(eyeAngle), eyeHeight, 6 * cos(eyeAngle) , 1};
-
-	cgSetParameter1f(reflectivity, mReflectivity);
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	cgGLBindProgram(myCgVertexProgram);
 	CheckCgError("Bind Vertex Program Error");
@@ -138,19 +178,22 @@ void OnDraw()
 	cgGLEnableProfile(myCgFragmentProfile);
 	CheckCgError("Enable Fragment Profile Error");
 
+	float translationMatrix[16], rotateMatrix[16], viewMatrix[16], finalMatrix[16], modelViewMatrix[16];
+	float mEyePosition[4] = { 8 * sin(mEyeAngle), mEyeHeight, 8 * cos(mEyeAngle) , 1 };
+	float mLightPosition[4] = { 3.5 * sin(mLightAngle), mLightHeight, 3.5 * cos(mLightAngle) , 1 };
+
 	buildLookAtMatrix(mEyePosition[0], mEyePosition[1], mEyePosition[2], 0, 0, 0, 0, 1, 0, viewMatrix);
 
 	cgSetParameter3fv(eyePosition, mEyePosition);
+	cgSetParameter3fv(lightPosition, mLightPosition);
 
 	makeTranslateMatrix(0, 0, 0, translationMatrix);
 	makeRotateMatrix(curOffset*30, 0, 1, 0, rotateMatrix);
 	multMatrix(finalMatrix, translationMatrix, rotateMatrix);
-	cgSetMatrixParameterfr(modelToWroldCoordMatrix, finalMatrix);
-	multMatrix(finalMatrix, viewMatrix, finalMatrix);
-	multMatrix(finalMatrix, projectionMatrix, finalMatrix);
+	multMatrix(modelViewMatrix, viewMatrix, finalMatrix);
+	multMatrix(finalMatrix, projectionMatrix, modelViewMatrix);
 	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
 
-	//glutSolidSphere(1.5, 40, 40);
 	DrawMonkeyHead();
 
 	cgUpdateProgramParameters(myCgVertexProgram);
@@ -162,6 +205,14 @@ void OnDraw()
 	cgGLDisableProfile(myCgFragmentProfile);
 	CheckCgError("Disable Fragment Profile Error");
 
+	glPushMatrix();
+	LoadMVP(modelViewMatrix);
+	glTranslatef(mLightPosition[0]*0.5, mLightPosition[1]*0.5, mLightPosition[2]*0.5);
+	glColor3f(1, 1, 0.5);
+	glutSolidSphere(0.05, 10, 10);
+	glColor3f(1, 1, 1);
+	glPopMatrix();
+
 	glutSwapBuffers();
 }
 
@@ -169,10 +220,10 @@ void ReShape(int width, int height)
 {
 	double aspectRatio = (float)width / (float)height;
 	double fieldView = 40;
-	buildPerspectiveMatrix(fieldView, aspectRatio, 1.0, 50.0, projectionMatrix);
+	buildPerspectiveMatrix(fieldView, aspectRatio, 0.1, 50.0, projectionMatrix);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(fieldView, aspectRatio, 1.0, 50.0);
+	gluPerspective(fieldView, aspectRatio, 0.1, 50.0);
 	glMatrixMode(GL_MODELVIEW);
 	glViewport(0, 0, width, height);
 }
@@ -188,6 +239,18 @@ void OnKeyBoard(unsigned char c, int x, int y)
 	static bool animating = false;
 	switch (c)
 	{
+	case '+':
+		mShininess *= 1.05;
+		printf("mShininess = %f\n", mShininess);
+		cgSetParameter1f(shininess, mShininess);
+		glutPostRedisplay();
+		break;
+	case '-':
+		mShininess /= 1.05;
+		printf("mShininess = %f\n", mShininess);
+		cgSetParameter1f(shininess, mShininess);
+		glutPostRedisplay();
+		break;
 	case 27:
 		cgDestroyProgram(myCgVertexProgram);
 		cgDestroyProgram(myCgFragmentProgram);
@@ -212,16 +275,28 @@ void OnKeyBoard(unsigned char c, int x, int y)
 
 void OnMousePressed(int button, int state, int x, int y)
 {
-	const int btn = GLUT_LEFT_BUTTON;
-	if (btn == button && state == GLUT_DOWN)
+	const int leftBtn = GLUT_LEFT_BUTTON;
+	const int midBtn = GLUT_MIDDLE_BUTTON;
+	if (leftBtn == button && state == GLUT_DOWN)
 	{
 		moving = true;
 		beginx = x;
 		beginy = y;
 	}
-	if (btn == button && state == GLUT_UP)
+	if (leftBtn == button && state == GLUT_UP)
 	{
 		moving = false;
+	}
+
+	if (midBtn == button && state == GLUT_DOWN)
+	{
+		lmoving = true;
+		lbeginx = x;
+		lbeginy = y;
+	}
+	if (midBtn == button && state == GLUT_UP)
+	{
+		lmoving = false;
 	}
 }
 
@@ -230,18 +305,34 @@ void OnMouseDrag(int x, int y)
 	const float bound = 8;
 	if (moving)
 	{
-		eyeAngle += (beginx - x) * 0.005;
-		eyeHeight -= (beginy - y) * 0.005;
-		if (eyeHeight > bound)
+		mEyeAngle += (beginx - x) * 0.005;
+		mEyeHeight -= (beginy - y) * 0.005;
+		if (mEyeHeight > bound)
 		{
-			eyeHeight = bound;
+			mEyeHeight = bound;
 		}
-		else if (eyeHeight < -bound)
+		else if (mEyeHeight < -bound)
 		{
-			eyeHeight = -bound;
+			mEyeHeight = -bound;
 		}
 		beginx = x;
 		beginy = y;
+		glutPostRedisplay();
+	}
+	if (lmoving)
+	{
+		mLightAngle += (lbeginx - x) * 0.005;
+		mLightHeight -= (lbeginy - y) * 0.005;
+		if (mLightHeight > bound)
+		{
+			mLightHeight = bound;
+		}
+		else if (mLightHeight < -bound)
+		{
+			mLightHeight = -bound;
+		}
+		lbeginx = x;
+		lbeginy = y;
 		glutPostRedisplay();
 	}
 }
@@ -284,7 +375,7 @@ void DrawMonkeyHead()
 	glEnableClientState(GL_NORMAL_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glVertexPointer(3, GL_FLOAT, 3 * sizeof(GLfloat), MonkeyHead_vertices);
-	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), MonkeyHead_vertices);
+	glNormalPointer(GL_FLOAT, 3 * sizeof(GLfloat), MonkeyHead_normals);
 	glTexCoordPointer(2, GL_FLOAT, 2 * sizeof(GLfloat), MonkeyHead_vertices);
 	glDrawElements(GL_TRIANGLES, 3 * MonkeyHead_num_of_triangles, GL_UNSIGNED_SHORT, MonkeyHead_triangles);
 }
@@ -325,7 +416,29 @@ float EdgeRamp(float x)
 	}
 }
 
-void LoadRamp()
+void LoadRamp(GLuint texIndex, int size, float (*func)(float x))
 {
+	int bytesForRamp = size * sizeof(float);
+	float *ramp = (float*)malloc(bytesForRamp);
+	if (NULL == ramp)
+	{
+		fprintf(stderr, "memory allocation failed\n");
+		exit(1);
+	}
+	float *slot = ramp;
+	float dx = 1.0 / size;
+	float x;
+	int i;
 
+	for (i = 0, x = 0.0, slot = ramp; i < size; i++, x += dx, slot++)
+	{
+		float v = func(x);
+		*slot = v;
+	}
+
+	glBindTexture(GL_TEXTURE_1D, texIndex);
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_LUMINANCE, size, 0, GL_LUMINANCE, GL_FLOAT, ramp);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 }

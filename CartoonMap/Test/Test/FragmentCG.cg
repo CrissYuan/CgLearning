@@ -1,9 +1,12 @@
-void TextureMain(float diffuseLight:TEXCOORD0,
-				float specularLight:TEXCOORD1,
-				float edge:TEXCOORD2,
+void TextureMain(float3 ojbPos:TEXCOORD0,
+				float3 ojbNormal:TEXCOORD1,
 
-				uniform float Kd,
-				uniform float Ks,
+				uniform float3 eyePosition,
+				uniform float3 lightPosition,
+				uniform float shininess,
+
+				uniform float4 Kd,
+				uniform float4 Ks,
 				uniform sampler1D diffuseRamp,
 				uniform sampler1D specularRamp,
 				uniform sampler1D edgeRamp,
@@ -11,6 +14,17 @@ void TextureMain(float diffuseLight:TEXCOORD0,
 				out float4 oColor : COLOR
 				)
 {
+	float3 N = normalize(ojbNormal);
+	float3 L = normalize(lightPosition - ojbPos.xyz);
+	float diffuseLight = max(dot(N, L), 0);
+	float3 V = normalize(eyePosition - ojbPos.xyz);
+	float3 H = normalize(L + V);
+	float specularLight = pow(max(dot(N, H), 0), shininess);
+	if(diffuseLight <= 0)
+		specularLight = 0;
+	float edge = max(dot(N, V), 0);
+
+
 	diffuseLight  = tex1D(diffuseRamp, diffuseLight).x;
 	specularLight = tex1D(specularRamp, specularLight).x;
 	edge          = tex1D(edgeRamp, edge).x;
