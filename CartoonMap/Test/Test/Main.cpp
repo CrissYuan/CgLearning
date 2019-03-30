@@ -180,7 +180,7 @@ void OnDraw()
 
 	float translationMatrix[16], rotateMatrix[16], viewMatrix[16], finalMatrix[16], modelViewMatrix[16];
 	float mEyePosition[4] = { 8 * sin(mEyeAngle), mEyeHeight, 8 * cos(mEyeAngle) , 1 };
-	float mLightPosition[4] = { 3.5 * sin(mLightAngle), mLightHeight, 3.5 * cos(mLightAngle) , 1 };
+	float mLightPosition[4] = { 2.5 * sin(mLightAngle), mLightHeight, 2.5 * cos(mLightAngle) , 1 };
 
 	buildLookAtMatrix(mEyePosition[0], mEyePosition[1], mEyePosition[2], 0, 0, 0, 0, 1, 0, viewMatrix);
 
@@ -207,7 +207,7 @@ void OnDraw()
 
 	glPushMatrix();
 	LoadMVP(modelViewMatrix);
-	glTranslatef(mLightPosition[0]*0.5, mLightPosition[1]*0.5, mLightPosition[2]*0.5);
+	glTranslatef(mLightPosition[0], mLightPosition[1], mLightPosition[2]);
 	glColor3f(1, 1, 0.5);
 	glutSolidSphere(0.05, 10, 10);
 	glColor3f(1, 1, 1);
