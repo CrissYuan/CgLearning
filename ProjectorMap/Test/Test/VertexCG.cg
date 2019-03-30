@@ -1,0 +1,14 @@
+void VertexMain(float4 iPosition:POSITION, 
+				float3 normal:NORMAL, //∑®œÚ¡ø
+				
+				uniform float4x4 changeCoordMatrix,
+
+				out float4 oPosition:POSITION,
+				out float3 ojbPos:TEXCOORD0,
+				out float3 ojbNormal:TEXCOORD1
+				)
+{
+	ojbPos = iPosition.xyz;
+	ojbNormal = normal;
+	oPosition = mul(changeCoordMatrix, iPosition);
+}

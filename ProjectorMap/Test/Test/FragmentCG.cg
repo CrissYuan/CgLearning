@@ -1,0 +1,15 @@
+void FragmentMain(float3 ojbPos:TEXCOORD0,
+				float3 ojbNormal:TEXCOORD1,
+
+				uniform float3 lightPosition,
+				uniform float4 Kd,
+
+				out float4 oColor : COLOR
+				)
+{
+	float3 N = normalize(ojbNormal);
+	float3 L = normalize(lightPosition - ojbPos.xyz);
+	float diffuseLight = max(dot(N, L), 0);
+
+	oColor = (Kd * diffuseLight);
+}

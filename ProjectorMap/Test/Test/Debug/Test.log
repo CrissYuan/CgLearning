@@ -1,0 +1,6 @@
+﻿  Main.cpp
+d:\yewiiyangits\cglearing\cglearning\texture\test\test\main.cpp(148): warning C4838: 从“double”转换到“float”需要收缩转换
+d:\yewiiyangits\cglearing\cglearning\texture\test\test\main.cpp(149): warning C4838: 从“double”转换到“float”需要收缩转换
+d:\yewiiyangits\cglearing\cglearning\texture\test\test\main.cpp(146): warning C4101: “modelViewMatrix”: 未引用的局部变量
+d:\yewiiyangits\cglearing\cglearning\texture\test\test\main.cpp(146): warning C4101: “lightViewMatrix”: 未引用的局部变量
+  Test.vcxproj -> D:\YewiiYanGits\CgLearing\CgLearning\Texture\Test\Debug\Test.exe
