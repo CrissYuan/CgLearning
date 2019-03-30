@@ -1,15 +1,19 @@
 void FragmentMain(float3 ojbPos:TEXCOORD0,
 				float3 ojbNormal:TEXCOORD1,
+				float4 texCoordProj:TEXCOORD2,
 
 				uniform float3 lightPosition,
 				uniform float4 Kd,
+				uniform sampler2D projectiveMap,
 
 				out float4 oColor : COLOR
 				)
 {
+	float4 textureColor = tex2Dproj(projectiveMap, texCoordProj);
+
 	float3 N = normalize(ojbNormal);
 	float3 L = normalize(lightPosition - ojbPos.xyz);
 	float diffuseLight = max(dot(N, L), 0);
 
-	oColor = (Kd * diffuseLight);
+	oColor = (Kd * diffuseLight) * textureColor;
 }

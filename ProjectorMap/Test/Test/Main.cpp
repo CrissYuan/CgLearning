@@ -17,6 +17,7 @@ static CGprogram myCgVertexProgram;
 static CGprofile myCgFragmentProfile;
 static CGprogram myCgFragmentProgram;
 static CGparameter changeCoordMatrix;
+static CGparameter textureMatrix;
 static CGparameter lightPosition;
 static CGparameter Kd;
 static const char* frameTitle = "Cg Test";
@@ -42,6 +43,7 @@ static int   lbeginx, lbeginy;
 
 void OnDraw();
 void DrawRoom();
+void SetupDemonSampler();
 void OnKeyBoard(unsigned char c, int x, int y);
 void CheckCgError(const char* situation);
 void LoadBMP(const char* Filename);
@@ -72,15 +74,14 @@ int main(int argc, char *argv[])
 	glutReshapeFunc(&ReShape);
 	glutMouseFunc(&OnMousePressed);
 	glutMotionFunc(&OnMouseDrag);
+
 	if (glewInit() != GLEW_OK)
 	{
 		fprintf(stderr, "failed to initalize GLEW.\n");
 		exit(1);
 	}
-	glClearColor(0.5, 0, 0, 0);
+	glClearColor(0, 0, 0, 0);
 	glEnable(GL_DEPTH_TEST);
-
-	//LoadBMP(textureDir);
 
 	myCgContext = cgCreateContext();
 	myCgVertexProfile = cgGLGetLatestProfile(CG_GL_VERTEX);
@@ -101,7 +102,8 @@ int main(int argc, char *argv[])
 	cgGetNamedParameter(myCgVertexProgram, #name);\
 	CheckCgError("Get Named "#name" Parameter Error");
 
-	GET_VERTEX_PROGRAM(changeCoordMatrix);
+	GET_VERTEX_PROGRAM(changeCoordMatrix); 
+	GET_VERTEX_PROGRAM(textureMatrix); 
 
 	myCgFragmentProfile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
 	cgGLSetOptimalOptions(myCgFragmentProfile);
@@ -126,6 +128,8 @@ int main(int argc, char *argv[])
 
 	cgSetParameter4fv(Kd, mKd);
 
+	SetupDemonSampler();
+
 	glutMainLoop();
 	return 0;
 }
@@ -143,16 +147,23 @@ void OnDraw()
 	cgGLEnableProfile(myCgFragmentProfile);
 	CheckCgError("Enable Fragment Profile Error");
 
-	float translationMatrix[16], rotateMatrix[16], viewMatrix[16], lightViewMatrix[16], finalMatrix[16], modelViewMatrix[16], invMatrix[16];
+	float translationMatrix[16], rotateMatrix[16], viewMatrix[16], 
+		finalMatrix[16], modelViewMatrix[16], invMatrix[16],
+		texMatrix[16], lightViewMatrix[16];
 	float mSpaceLightPosition[4];
 	float mEyePosition[4] = { 10 * sin(mEyeAngle), mEyeHeight, 10 * cos(mEyeAngle) , 1 };
 	float mLightPosition[4] = { 4.5 * sin(mLightAngle), mLightHeight, 4.5 * cos(mLightAngle) , 1 };
+
+	buildLookAtMatrix(mLightPosition[0], mLightPosition[1], mLightPosition[2], 0, 0, 0, 0, -1, 0, lightViewMatrix);
+	
 
 	buildLookAtMatrix(mEyePosition[0], mEyePosition[1], mEyePosition[2], 0, 0, 0, 0, 1, 0, viewMatrix);
 	//Çò
 	makeTranslateMatrix(2, 0, 0, translationMatrix);
 	makeRotateMatrix(70, 1, 1, 1, rotateMatrix);
 	multMatrix(finalMatrix, translationMatrix, rotateMatrix);
+	buildTextureMatrix(lightViewMatrix, finalMatrix, texMatrix);
+	cgSetMatrixParameterfr(textureMatrix, texMatrix);
 
 	invertMatrix(invMatrix, finalMatrix);
 	transform(mSpaceLightPosition, invMatrix, mLightPosition);
@@ -160,6 +171,7 @@ void OnDraw()
 
 	multMatrix(finalMatrix, viewMatrix, finalMatrix);
 	multMatrix(finalMatrix, projectionMatrix, finalMatrix);
+
 	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
 
 	cgUpdateProgramParameters(myCgVertexProgram);
@@ -171,6 +183,8 @@ void OnDraw()
 	makeTranslateMatrix(-3, 0, 0, translationMatrix);
 	makeRotateMatrix(20, 0, 1, 0, rotateMatrix);
 	multMatrix(finalMatrix, translationMatrix, rotateMatrix);
+	buildTextureMatrix(lightViewMatrix, finalMatrix, texMatrix);
+	cgSetMatrixParameterfr(textureMatrix, texMatrix);
 
 	invertMatrix(invMatrix, finalMatrix);
 	transform(mSpaceLightPosition, invMatrix, mLightPosition);
@@ -188,6 +202,10 @@ void OnDraw()
 	//·¿¼ä
 	cgSetParameter3fv(lightPosition, mLightPosition);
 	multMatrix(finalMatrix, projectionMatrix, viewMatrix);
+
+	makeTranslateMatrix(0, 0, 0, translationMatrix);
+	buildTextureMatrix(lightViewMatrix, translationMatrix, texMatrix);
+
 	cgSetMatrixParameterfr(changeCoordMatrix, finalMatrix);
 	cgUpdateProgramParameters(myCgVertexProgram);
 	cgUpdateProgramParameters(myCgFragmentProgram);
@@ -203,7 +221,7 @@ void OnDraw()
 	multMatrix(finalMatrix, viewMatrix, finalMatrix);
 	glPushMatrix();
 	loadMVP(finalMatrix);
-	glColor3f(1, 1, 0.8);
+	glColor3f(0.9, 0.9, 0.3);
 	glutSolidSphere(0.15, 10, 10);
 	glColor3f(1, 1, 1);
 	glPopMatrix();
@@ -254,6 +272,30 @@ void DrawRoom()
 	glEnd();
 
 	glDisable(GL_CULL_FACE);
+}
+
+void SetupDemonSampler()
+{
+	GLuint texobj = 666;
+	CGparameter sampler;
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1); /* Tightly packed texture data. */
+
+	glBindTexture(GL_TEXTURE_2D, texobj);
+	/* Load demon decal texture with mipmaps. */
+	LoadBMP(textureDir);
+	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB8,
+		512, 512, GL_RGB, GL_UNSIGNED_BYTE, myTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+		GL_LINEAR_MIPMAP_LINEAR);
+
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, mKd);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+	sampler = cgGetNamedParameter(myCgFragmentProgram, "projectiveMap");
+	CheckCgError("getting projectiveMap sampler parameter");
+	cgGLSetTextureParameter(sampler, texobj);
 }
 
 void OnKeyBoard(unsigned char c, int x, int y)
