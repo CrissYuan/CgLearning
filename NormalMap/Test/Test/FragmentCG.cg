@@ -1,0 +1,51 @@
+float3 Expand(float3 v)
+{
+	return (v - 0.5) * 2;
+}
+
+void TextureMain(out float4 oColor:COLOR,
+				uniform float3 globalAmbient, //环境光颜色
+				uniform float3 lightColor, //灯光颜色
+				uniform float3 lightPosition, //灯的位置
+				uniform float3 eyePosition,  //眼睛的位置
+				uniform float3 Ke, //材质自身颜色
+				uniform float3 Ka, //环境光系数
+
+				uniform float shininess, //材质光滑程度
+				uniform sampler2D textureMap,
+				uniform sampler2D normalMap,
+
+				float2 uv:TEXCOORD0,
+				float3 ojbPos:TEXCOORD1,
+				float3x3 oRoatation:TEXCOORD2
+				)
+{
+	// 自发光
+	float3 emissiveLight = Ke;
+	// 环境光
+	float3 ambientLight = Ka * globalAmbient;
+
+	// 漫反射光
+	float3 P = ojbPos.xyz; //顶点位置
+	float3 textureClr = tex2D(textureMap, uv).xyz;
+	float3 Kd = textureClr; //漫反射光系数
+	float3 Ks = textureClr; //镜面射光系数
+	float3 normalClr = tex2D(normalMap, uv).xyz;
+	float3 N = Expand(normalClr); //顶点位置法向量
+	float3 L = normalize(lightPosition - P);
+	L = mul(oRoatation, L);
+	float kDiffuse = max(dot(N, L), 0);
+	float3 diffuseLight = textureClr * lightColor * kDiffuse;
+
+	// 镜面反射光
+	float3 V = normalize(eyePosition - P);
+	float3 H = normalize(L + V);
+	float kSpecular = pow(max(dot(N ,H), 0), shininess);
+	if(kDiffuse <= 0)
+		kSpecular = 0;
+	float3 specularLight = textureClr * lightColor * kSpecular;
+	
+	float3 maxLight = {1,1,1};
+	oColor.xyz = min(emissiveLight + ambientLight + diffuseLight + specularLight, maxLight);
+	oColor.w = 1;
+}

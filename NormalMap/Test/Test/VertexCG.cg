@@ -1,0 +1,20 @@
+void VertexMain(float4 iPosition:POSITION, 
+				out float4 oPosition:POSITION, 
+				out float3 ojbPos:TEXCOORD1,
+
+				float2 iTexCoord:TEXCOORD0,
+				out float2 oTexCoord:TEXCOORD0, //Œ∆¿Ìuv
+
+				float3 normal:NORMAL,
+				float3 tangent:TEXCOORD2,
+				out float3x3 oRoatation:TEXCOORD2,
+
+				uniform float4x4 changeCoordMatrix
+				)
+{
+	ojbPos = iPosition.xyz;
+	oPosition = mul(changeCoordMatrix, iPosition);
+	oTexCoord = iTexCoord;
+	float3 binormal = cross(normal, tangent);
+	oRoatation = float3x3(tangent, binormal, normal);
+}
