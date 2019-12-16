@@ -39,7 +39,7 @@ static float projectionMatrix[16];
 static float eyeHeight = 8;
 static float eyeAngle = 0;
 static float mFogDensity = 0.08f;
-static float mFogColor[3] = {0.9, 0.8, 0.8};
+static float mFogColor[3] = {0.8, 0.8, 0.8};
 static int beginx, beginy;
 static int supports_texture_anisotropy = 0;
 static int moving = 0;
